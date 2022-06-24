@@ -1,0 +1,34 @@
+{
+  "name": "@latticexyz/stressoor",
+  "version": "0.0.12",
+  "repository": "https://github.com/latticexyz/stressoor.js",
+  "license": "MIT",
+  "main": "src/index.ts",
+  "devDependencies": {
+    "@rollup/plugin-typescript": "^8.3.3",
+    "commitizen": "^4.2.4",
+    "release-it": "^15.1.0",
+    "rollup": "^2.75.7",
+    "rollup-plugin-typescript2": "^0.32.1",
+    "@rollup/plugin-node-resolve": "^13.3.0",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-peer-deps-external": "^2.2.4",
+    "typescript": "^4.7.4"
+  },
+  "dependencies": {
+    "ethers": "^5.6.9"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
+  "scripts": {
+    "commit": "cz",
+    "build": "rollup -c",
+    "release": "release-it"
+  }
+}
