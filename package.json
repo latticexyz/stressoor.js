@@ -4,6 +4,7 @@
   "repository": "https://github.com/latticexyz/stressoor.js",
   "license": "MIT",
   "main": "dist/index.js",
+  "type": "module",
   "devDependencies": {
     "@rollup/plugin-typescript": "^8.3.3",
     "commitizen": "^4.2.4",
