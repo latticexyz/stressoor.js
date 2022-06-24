@@ -1,75 +1,6 @@
 import buffer from 'buffer';
 import util from 'util';
 
-/******************************************************************************
-Copyright (c) Microsoft Corporation.
-
-Permission to use, copy, modify, and/or distribute this software for any
-purpose with or without fee is hereby granted.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
-AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
-LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
-OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-PERFORMANCE OF THIS SOFTWARE.
-***************************************************************************** */
-/* global Reflect, Promise */
-
-var extendStatics = function(d, b) {
-    extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-    return extendStatics(d, b);
-};
-
-function __extends(d, b) {
-    if (typeof b !== "function" && b !== null)
-        throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-    extendStatics(d, b);
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-}
-
-function __awaiter$b(thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-}
-
-function __generator(thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-}
-
 const version$k = "logger/5.6.0";
 
 let _permanentCensorErrors = false;
@@ -17506,220 +17437,112 @@ class WebSocketProvider extends JsonRpcProvider {
     }
 }
 
-var HookedWallet = /** @class */ (function (_super) {
-    __extends(HookedWallet, _super);
-    function HookedWallet() {
-        return _super !== null && _super.apply(this, arguments) || this;
+class HookedWallet extends Wallet {
+    hook_sendTransaction() { }
+    async sendTransaction(transaction) {
+        this.hook_sendTransaction();
+        return super.sendTransaction(transaction);
     }
-    HookedWallet.prototype.hook_sendTransaction = function () { };
-    HookedWallet.prototype.sendTransaction = function (transaction) {
-        return __awaiter$b(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                this.hook_sendTransaction();
-                return [2 /*return*/, _super.prototype.sendTransaction.call(this, transaction)];
-            });
-        });
-    };
-    return HookedWallet;
-}(Wallet));
-var HotNonceWallet = /** @class */ (function (_super) {
-    __extends(HotNonceWallet, _super);
-    function HotNonceWallet() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.hotNonce = NaN;
-        return _this;
-    }
-    HotNonceWallet.prototype.getHotNonce = function () {
-        return this.hotNonce;
-    };
-    HotNonceWallet.prototype.incHotNonce = function () {
-        this.hotNonce++;
-    };
-    HotNonceWallet.prototype.hook_sendTransaction = function () {
-        this.incHotNonce();
-    };
-    HotNonceWallet.prototype.initHotNonce = function () {
-        return __awaiter$b(this, void 0, void 0, function () {
-            var _a;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        _a = this;
-                        return [4 /*yield*/, this.getTransactionCount()];
-                    case 1:
-                        _a.hotNonce = _b.sent();
-                        return [2 /*return*/];
-                }
-            });
-        });
-    };
-    return HotNonceWallet;
-}(HookedWallet));
-
-function sleep(ms) {
-    return __awaiter$b(this, void 0, void 0, function () {
-        return __generator(this, function (_a) {
-            return [2 /*return*/, new Promise(function (resolve) { return setTimeout(resolve, ms); })];
-        });
-    });
 }
-var GatlingGun = /** @class */ (function () {
-    function GatlingGun(rpcProvider, nAddr, seed) {
-        if (nAddr === void 0) { nAddr = 100; }
-        if (seed === void 0) { seed = ""; }
+class HotNonceWallet extends HookedWallet {
+    constructor() {
+        super(...arguments);
+        this.hotNonce = NaN;
+    }
+    getHotNonce() {
+        return this.hotNonce;
+    }
+    incHotNonce() {
+        this.hotNonce++;
+    }
+    hook_sendTransaction() {
+        this.incHotNonce();
+    }
+    async initHotNonce() {
+        this.hotNonce = await this.getTransactionCount();
+    }
+}
+
+async function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
+class GatlingGun {
+    constructor(rpcProvider, nAddr = 100, seed = "") {
         this.wallets = [];
         this.initAddr(rpcProvider, nAddr, seed);
     }
-    GatlingGun.prototype.initAddr = function (rpcProvider, nAddr, seed) {
+    initAddr(rpcProvider, nAddr, seed) {
         this.wallets = [];
-        for (var ii = 1; ii < nAddr + 1; ii++) {
-            var pKey = "0x" + seed + ii.toString().padStart(64 - seed.length, "0");
+        for (let ii = 1; ii < nAddr + 1; ii++) {
+            const pKey = "0x" + seed + ii.toString().padStart(64 - seed.length, "0");
             this.wallets.push(new HotNonceWallet(pKey, rpcProvider));
         }
-    };
-    GatlingGun.prototype.shoot = function (shootFunc, nTx, async, txDelayMs, roundDelayMs) {
-        return __awaiter$b(this, void 0, void 0, function () {
-            var promises, txIdx, addrIdx, pp;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        promises = [];
-                        txIdx = 0;
-                        _a.label = 1;
-                    case 1:
-                        if (!(txIdx < nTx)) return [3 /*break*/, 9];
-                        addrIdx = txIdx % this.wallets.length;
-                        if (!(addrIdx == 0 && txIdx != 0)) return [3 /*break*/, 3];
-                        return [4 /*yield*/, sleep(roundDelayMs)];
-                    case 2:
-                        _a.sent();
-                        _a.label = 3;
-                    case 3:
-                        pp = shootFunc(this.wallets[addrIdx], txIdx, addrIdx);
-                        if (!async) return [3 /*break*/, 4];
-                        promises.push(pp);
-                        return [3 /*break*/, 6];
-                    case 4: return [4 /*yield*/, pp];
-                    case 5:
-                        _a.sent();
-                        _a.label = 6;
-                    case 6: return [4 /*yield*/, sleep(txDelayMs)];
-                    case 7:
-                        _a.sent();
-                        _a.label = 8;
-                    case 8:
-                        txIdx++;
-                        return [3 /*break*/, 1];
-                    case 9: return [4 /*yield*/, Promise.all(promises)];
-                    case 10:
-                        _a.sent();
-                        return [2 /*return*/];
-                }
-            });
-        });
-    };
-    return GatlingGun;
-}());
-
-function runStressTest(rpcProvider, paramsFunc, callFunc, metricsFunc, reports, initFuncs, async, nAddr, nTx, txDelayMs, roundDelayMs, addrGenSeed) {
-    if (initFuncs === void 0) { initFuncs = []; }
-    if (async === void 0) { async = true; }
-    if (nAddr === void 0) { nAddr = 100; }
-    if (nTx === void 0) { nTx = 100; }
-    if (txDelayMs === void 0) { txDelayMs = 25; }
-    if (roundDelayMs === void 0) { roundDelayMs = 0; }
-    if (addrGenSeed === void 0) { addrGenSeed = ""; }
-    return __awaiter$b(this, void 0, void 0, function () {
-        var gun, shoot, ii, startTime, ii, endTime, output, ii, report, name_1, jj;
-        var _this = this;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    gun = new GatlingGun(rpcProvider, nAddr, addrGenSeed);
-                    shoot = function (wallet, txIdx, addrIdx) { return __awaiter$b(_this, void 0, void 0, function () {
-                        var params, metrics, ii;
-                        return __generator(this, function (_a) {
-                            switch (_a.label) {
-                                case 0:
-                                    params = paramsFunc(txIdx, addrIdx);
-                                    return [4 /*yield*/, metricsFunc(callFunc, wallet, params)];
-                                case 1:
-                                    metrics = _a.sent();
-                                    for (ii = 0; ii < reports.length; ii++) {
-                                        reports[ii].newMetric(txIdx, addrIdx, params, metrics);
-                                    }
-                                    return [2 /*return*/];
-                            }
-                        });
-                    }); };
-                    ii = 0;
-                    _a.label = 1;
-                case 1:
-                    if (!(ii < initFuncs.length)) return [3 /*break*/, 4];
-                    return [4 /*yield*/, gun.shoot(initFuncs[ii], nAddr, true, 5, 0)];
-                case 2:
-                    _a.sent();
-                    _a.label = 3;
-                case 3:
-                    ii++;
-                    return [3 /*break*/, 1];
-                case 4:
-                    startTime = new Date();
-                    for (ii = 0; ii < reports.length; ii++) {
-                        reports[ii].startReport(startTime);
-                    }
-                    return [4 /*yield*/, gun.shoot(shoot, nTx, async, txDelayMs, roundDelayMs)];
-                case 5:
-                    _a.sent();
-                    endTime = new Date();
-                    output = {};
-                    for (ii = 0; ii < reports.length; ii++) {
-                        report = reports[ii];
-                        report.endReport(endTime);
-                        name_1 = report.getName();
-                        jj = 0;
-                        while (name_1 in output) {
-                            name_1 = report.getName() + "(".concat(jj, ")");
-                            jj++;
-                        }
-                        output[name_1] = report.output();
-                    }
-                    return [2 /*return*/, output];
+    }
+    async shoot(shootFunc, nTx, async, txDelayMs, roundDelayMs) {
+        const promises = [];
+        for (let txIdx = 0; txIdx < nTx; txIdx++) {
+            const addrIdx = txIdx % this.wallets.length;
+            if (addrIdx == 0 && txIdx != 0)
+                await sleep(roundDelayMs);
+            const pp = shootFunc(this.wallets[addrIdx], txIdx, addrIdx);
+            if (async) {
+                promises.push(pp);
             }
-        });
-    });
+            else {
+                await pp;
+            }
+            await sleep(txDelayMs);
+        }
+        await Promise.all(promises);
+    }
 }
 
-var sendTransaction = function (wallet, params) { return __awaiter$b(void 0, void 0, void 0, function () {
-    var hotNonce, tx;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                hotNonce = wallet.getHotNonce();
-                if (!isNaN(hotNonce)) {
-                    params.nonce = hotNonce;
-                }
-                return [4 /*yield*/, wallet.sendTransaction(params)];
-            case 1:
-                tx = _a.sent();
-                return [2 /*return*/, tx];
+async function runStressTest(rpcProvider, paramsFunc, callFunc, metricsFunc, reports, initFuncs = [], async = true, nAddr = 100, nTx = 100, txDelayMs = 25, roundDelayMs = 0, addrGenSeed = "") {
+    const gun = new GatlingGun(rpcProvider, nAddr, addrGenSeed);
+    const shoot = async (wallet, txIdx, addrIdx) => {
+        const params = paramsFunc(txIdx, addrIdx);
+        const metrics = await metricsFunc(callFunc, wallet, params);
+        for (let ii = 0; ii < reports.length; ii++) {
+            reports[ii].newMetric(txIdx, addrIdx, params, metrics);
         }
-    });
-}); };
-var sendTransactionGetReceipt = function (wallet, params) { return __awaiter$b(void 0, void 0, void 0, function () {
-    var tx, receipt;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0: return [4 /*yield*/, sendTransaction(wallet, params)];
-            case 1:
-                tx = _a.sent();
-                return [4 /*yield*/, tx.wait()];
-            case 2:
-                receipt = _a.sent();
-                return [2 /*return*/, receipt];
+    };
+    for (let ii = 0; ii < initFuncs.length; ii++) {
+        await gun.shoot(initFuncs[ii], nAddr, true, 5, 0);
+    }
+    const startTime = new Date();
+    for (let ii = 0; ii < reports.length; ii++) {
+        reports[ii].startReport(startTime);
+    }
+    await gun.shoot(shoot, nTx, async, txDelayMs, roundDelayMs);
+    const endTime = new Date();
+    const output = {};
+    for (let ii = 0; ii < reports.length; ii++) {
+        const report = reports[ii];
+        report.endReport(endTime);
+        let name = report.getName();
+        let jj = 0;
+        while (name in output) {
+            name = report.getName() + `(${jj})`;
+            jj++;
         }
-    });
-}); };
+        output[name] = report.output();
+    }
+    return output;
+}
+
+const sendTransaction = async (wallet, params) => {
+    const hotNonce = wallet.getHotNonce();
+    if (!isNaN(hotNonce)) {
+        params.nonce = hotNonce;
+    }
+    const tx = await wallet.sendTransaction(params);
+    return tx;
+};
+const sendTransactionGetReceipt = async (wallet, params) => {
+    const tx = await sendTransaction(wallet, params);
+    const receipt = await tx.wait();
+    return receipt;
+};
 
 var Call = /*#__PURE__*/Object.freeze({
     __proto__: null,
@@ -17727,75 +17550,49 @@ var Call = /*#__PURE__*/Object.freeze({
     sendTransactionGetReceipt: sendTransactionGetReceipt
 });
 
-var initHotNonce = function (wallet, txIdx, addrIdx) { return __awaiter$b(void 0, void 0, void 0, function () {
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0: return [4 /*yield*/, wallet.initHotNonce()];
-            case 1:
-                _a.sent();
-                return [2 /*return*/];
-        }
-    });
-}); };
+const initHotNonce = async (wallet, txIdx, addrIdx) => {
+    await wallet.initHotNonce();
+};
 
 var Init = /*#__PURE__*/Object.freeze({
     __proto__: null,
     initHotNonce: initHotNonce
 });
 
-var timeIt = function (callFunc, wallet, params) { return __awaiter$b(void 0, void 0, void 0, function () {
-    var startTime, endTime;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                startTime = new Date();
-                return [4 /*yield*/, callFunc(wallet, params)];
-            case 1:
-                _a.sent();
-                endTime = new Date();
-                return [2 /*return*/, {
-                        milliseconds: endTime.getTime() - startTime.getTime()
-                    }];
-        }
-    });
-}); };
-var txInfo = function (callFunc, wallet, params) { return __awaiter$b(void 0, void 0, void 0, function () {
-    var sentBlockNumber, sentTime, hotNonce, receipt, err_1, receiptTime, receiptBlockNumber;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0: return [4 /*yield*/, wallet.provider.getBlockNumber()];
-            case 1:
-                sentBlockNumber = _a.sent();
-                sentTime = new Date().getTime();
-                hotNonce = wallet.getHotNonce();
-                _a.label = 2;
-            case 2:
-                _a.trys.push([2, 4, , 5]);
-                return [4 /*yield*/, callFunc(wallet, params)];
-            case 3:
-                receipt = _a.sent();
-                return [3 /*break*/, 5];
-            case 4:
-                err_1 = _a.sent();
-                return [2 /*return*/, { error: err_1 }];
-            case 5:
-                receiptTime = new Date().getTime();
-                receiptBlockNumber = receipt.blockNumber;
-                return [2 /*return*/, {
-                        from: wallet.address,
-                        hotNonce: hotNonce,
-                        milliseconds: receiptTime - sentTime,
-                        sentTime: sentTime,
-                        receiptTime: receiptTime,
-                        blockNumberDelta: receiptBlockNumber - sentBlockNumber,
-                        status: receipt.status,
-                        blockNumber: receipt.status,
-                        sentBlockNumber: sentBlockNumber,
-                        receiptBlockNumber: receiptBlockNumber
-                    }];
-        }
-    });
-}); };
+const timeIt = async (callFunc, wallet, params) => {
+    const startTime = new Date();
+    await callFunc(wallet, params);
+    const endTime = new Date();
+    return {
+        milliseconds: endTime.getTime() - startTime.getTime(),
+    };
+};
+const txInfo = async (callFunc, wallet, params) => {
+    const sentBlockNumber = await wallet.provider.getBlockNumber();
+    const sentTime = new Date().getTime();
+    const hotNonce = wallet.getHotNonce();
+    let receipt;
+    try {
+        receipt = await callFunc(wallet, params);
+    }
+    catch (err) {
+        return { error: err };
+    }
+    const receiptTime = new Date().getTime();
+    const receiptBlockNumber = receipt.blockNumber;
+    return {
+        from: wallet.address,
+        hotNonce: hotNonce,
+        milliseconds: receiptTime - sentTime,
+        sentTime: sentTime,
+        receiptTime: receiptTime,
+        blockNumberDelta: receiptBlockNumber - sentBlockNumber,
+        status: receipt.status,
+        blockNumber: receipt.status,
+        sentBlockNumber: sentBlockNumber,
+        receiptBlockNumber: receiptBlockNumber,
+    };
+};
 
 var Metrics = /*#__PURE__*/Object.freeze({
     __proto__: null,
@@ -17803,155 +17600,134 @@ var Metrics = /*#__PURE__*/Object.freeze({
     txInfo: txInfo
 });
 
-var Statistics = /** @class */ (function () {
-    function Statistics() {
-    }
-    Statistics.ensureNotEmpty = function (arr) {
+class Statistics {
+    static ensureNotEmpty(arr) {
         if (arr.length === 0) {
             throw new Error("The array must not be empty.");
         }
-    };
-    Statistics.asc = function (a, b) {
+    }
+    static asc(a, b) {
         return a - b;
-    };
-    Statistics.desc = function (a, b) {
+    }
+    static desc(a, b) {
         return b - a;
-    };
-    Statistics.sort = function (arr, dir) {
-        if (dir === void 0) { dir = Statistics.asc; }
+    }
+    static sort(arr, dir = Statistics.asc) {
         return arr.slice().sort(dir);
-    };
-    Statistics.min = function (arr) {
+    }
+    static min(arr) {
         Statistics.ensureNotEmpty(arr);
-        return Math.min.apply(Math, arr);
-    };
-    Statistics.max = function (arr) {
+        return Math.min(...arr);
+    }
+    static max(arr) {
         Statistics.ensureNotEmpty(arr);
-        return Math.max.apply(Math, arr);
-    };
-    Statistics.range = function (arr) {
+        return Math.max(...arr);
+    }
+    static range(arr) {
         return Statistics.max(arr) - Statistics.min(arr);
-    };
-    Statistics.sum = function (arr) {
-        return arr.reduce(function (x, y) { return x + y; }, 0);
-    };
-    Statistics.mean = function (arr) {
+    }
+    static sum(arr) {
+        return arr.reduce((x, y) => x + y, 0);
+    }
+    static mean(arr) {
         Statistics.ensureNotEmpty(arr);
         return Statistics.sum(arr) / arr.length;
-    };
-    Statistics.median = function (arr) {
+    }
+    static median(arr) {
         Statistics.ensureNotEmpty(arr);
-        var center = Math.floor(arr.length / 2);
+        const center = Math.floor(arr.length / 2);
         return Statistics.sort(arr)[center];
-    };
-    Statistics.variance = function (arr) {
-        var mean = Statistics.mean(arr);
-        var squaredDiffs = arr.map(function (n) { return Math.pow(n - mean, 2); });
+    }
+    static variance(arr) {
+        const mean = Statistics.mean(arr);
+        const squaredDiffs = arr.map((n) => Math.pow(n - mean, 2));
         return Statistics.mean(squaredDiffs);
-    };
-    Statistics.stddev = function (arr) {
+    }
+    static stddev(arr) {
         return Math.sqrt(Statistics.variance(arr));
-    };
-    return Statistics;
-}());
+    }
+}
 
-var BaseReport = /** @class */ (function () {
-    function BaseReport(name) {
+class BaseReport {
+    constructor(name) {
         this.name = name;
     }
-    BaseReport.prototype.getName = function () {
+    getName() {
         return this.name;
-    };
-    BaseReport.prototype.startReport = function (startTime) { };
-    BaseReport.prototype.endReport = function (endTime) { };
-    BaseReport.prototype.newMetric = function (txIdx, addrIdx, params, metrics) { };
-    BaseReport.prototype.output = function () { };
-    return BaseReport;
-}());
+    }
+    startReport(startTime) { }
+    endReport(endTime) { }
+    newMetric(txIdx, addrIdx, params, metrics) { }
+    output() { }
+}
 // [?] Can you extend multiple classes?
-var ReportSelected = /** @class */ (function (_super) {
-    __extends(ReportSelected, _super);
-    function ReportSelected(name, selector) {
-        if (selector === void 0) { selector = ""; }
-        var _this = _super.call(this, name) || this;
-        _this.selector = selector;
-        return _this;
+class ReportSelected extends BaseReport {
+    constructor(name, selector = "") {
+        super(name);
+        this.selector = selector;
     }
-    ReportSelected.prototype.select = function (data) {
+    select(data) {
         return this.selector == "" ? data : data[this.selector];
-    };
-    return ReportSelected;
-}(BaseReport));
-var ReportDataArray = /** @class */ (function (_super) {
-    __extends(ReportDataArray, _super);
-    function ReportDataArray() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.data = [];
-        return _this;
     }
-    ReportDataArray.prototype.newMetric = function (txIdx, addrIdx, params, metrics) {
+}
+class ReportDataArray extends ReportSelected {
+    constructor() {
+        super(...arguments);
+        this.data = [];
+    }
+    newMetric(txIdx, addrIdx, params, metrics) {
         this.data.push(this.select(metrics));
-    };
-    ReportDataArray.prototype.output = function () {
-        return {
-            data: this.data
-        };
-    };
-    return ReportDataArray;
-}(ReportSelected));
-var ReportTime = /** @class */ (function (_super) {
-    __extends(ReportTime, _super);
-    function ReportTime(name) {
-        if (name === void 0) { name = "time"; }
-        var _this = _super.call(this, name) || this;
-        _this.startTime = NaN;
-        _this.endTime = NaN;
-        return _this;
     }
-    ReportTime.prototype.startReport = function (startDate) {
+    output() {
+        return {
+            data: this.data,
+        };
+    }
+}
+class ReportTime extends BaseReport {
+    constructor(name = "time") {
+        super(name);
+        this.startTime = NaN;
+        this.endTime = NaN;
+    }
+    startReport(startDate) {
         this.startTime = startDate.getTime();
-    };
-    ReportTime.prototype.endReport = function (endDate) {
+    }
+    endReport(endDate) {
         this.endTime = endDate.getTime();
-    };
-    ReportTime.prototype.output = function () {
+    }
+    output() {
         return {
             startTime: this.startTime,
             endTime: this.endTime,
-            milliseconds: this.endTime - this.startTime
+            milliseconds: this.endTime - this.startTime,
         };
-    };
-    return ReportTime;
-}(BaseReport));
-var ReportTimeTemplatedString = /** @class */ (function (_super) {
-    __extends(ReportTimeTemplatedString, _super);
-    function ReportTimeTemplatedString(name, urlTemplate) {
-        var _this = _super.call(this, name) || this;
-        _this.urlTemplate = urlTemplate;
-        return _this;
     }
-    ReportTimeTemplatedString.prototype.output = function () {
+}
+class ReportTimeTemplatedString extends ReportTime {
+    constructor(name, urlTemplate) {
+        super(name);
+        this.urlTemplate = urlTemplate;
+    }
+    output() {
         return {
             url: this.urlTemplate
                 .replace("$startTime", this.startTime.toString())
-                .replace("$endTime", this.endTime.toString())
+                .replace("$endTime", this.endTime.toString()),
         };
-    };
-    return ReportTimeTemplatedString;
-}(ReportTime));
-var ReportMaxMinMean = /** @class */ (function (_super) {
-    __extends(ReportMaxMinMean, _super);
-    function ReportMaxMinMean() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.max = NaN;
-        _this.min = NaN;
-        _this.mean = NaN;
-        _this.n = 0;
-        return _this;
     }
-    ReportMaxMinMean.prototype.newMetric = function (txIdx, addrIdx, params, metrics) {
+}
+class ReportMaxMinMean extends ReportSelected {
+    constructor() {
+        super(...arguments);
+        this.max = NaN;
+        this.min = NaN;
+        this.mean = NaN;
+        this.n = 0;
+    }
+    newMetric(txIdx, addrIdx, params, metrics) {
         this.n++;
-        var value = this.select(metrics);
+        const value = this.select(metrics);
         if (Number.isNaN(this.max)) {
             this.max = value;
             this.min = value;
@@ -17961,35 +17737,32 @@ var ReportMaxMinMean = /** @class */ (function (_super) {
         this.max = Math.max(this.max, value);
         this.min = Math.min(this.min, value);
         this.mean = (this.mean * (this.n - 1) + value) / this.n;
-    };
-    ReportMaxMinMean.prototype.output = function () {
+    }
+    output() {
         return {
             n: this.n,
             max: this.max,
             min: this.min,
-            mean: this.mean
+            mean: this.mean,
         };
-    };
-    return ReportMaxMinMean;
-}(ReportSelected));
-var ReportStats = /** @class */ (function (_super) {
-    __extends(ReportStats, _super);
-    function ReportStats() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.percentileLabels = [1, 5, 10, 25, 50, 75, 90, 95, 99];
-        return _this;
     }
-    ReportStats.prototype.getPercentiles = function () {
-        var sortedData = Statistics.sort(this.data);
-        var percentiles = {};
-        for (var ii = 0; ii < this.percentileLabels.length; ii++) {
-            var label = this.percentileLabels[ii];
+}
+class ReportStats extends ReportDataArray {
+    constructor() {
+        super(...arguments);
+        this.percentileLabels = [1, 5, 10, 25, 50, 75, 90, 95, 99];
+    }
+    getPercentiles() {
+        const sortedData = Statistics.sort(this.data);
+        const percentiles = {};
+        for (let ii = 0; ii < this.percentileLabels.length; ii++) {
+            const label = this.percentileLabels[ii];
             percentiles[label] =
                 sortedData[Math.floor((label / 100) * sortedData.length)];
         }
         return percentiles;
-    };
-    ReportStats.prototype.output = function () {
+    }
+    output() {
         return {
             stats: {
                 min: Statistics.min(this.data),
@@ -17999,12 +17772,11 @@ var ReportStats = /** @class */ (function (_super) {
                 median: Statistics.median(this.data),
                 variance: Statistics.variance(this.data),
                 stddev: Statistics.stddev(this.data),
-                percentiles: this.getPercentiles()
-            }
+                percentiles: this.getPercentiles(),
+            },
         };
-    };
-    return ReportStats;
-}(ReportDataArray));
+    }
+}
 
 var Report = /*#__PURE__*/Object.freeze({
     __proto__: null,
