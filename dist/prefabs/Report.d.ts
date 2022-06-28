@@ -5,7 +5,7 @@ declare class BaseReport implements Types.Report {
     getName(): string;
     startReport(startTime: Date): void;
     endReport(endTime: Date): void;
-    newMetric(txIdx: number, addrIdx: number, params: Types.ParamsType, metrics: Types.MetricsType): void;
+    newMetric(params: Types.ParamsType, metrics: Types.MetricsType, testContext: Types.TestContext, txContext: Types.TxContext): void;
     output(): any;
 }
 declare class ReportSelected extends BaseReport {

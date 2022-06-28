@@ -1,14 +1,27 @@
 import * as RPC from "./Rpc";
 
+export type TestContext = any;
+export type TxContext = any;
+
 export type ParamsType = any;
 export type MetricsType = any;
 
-export type ParamsFunc = (txIdx: number, addrIdx: number) => ParamsType;
-export type CallFunc = (wallet: RPC.Wallet, params: ParamsType) => Promise<any>;
+export type ParamsFunc = (
+  testContext: TestContext,
+  txContext: TxContext
+) => ParamsType;
+
+export type CallFunc = (
+  params: ParamsType,
+  testContext: TestContext,
+  txContext: TxContext
+) => Promise<any>;
+
 export type MetricsFunc = (
   callFunc: CallFunc,
-  wallet: RPC.Wallet,
-  params: ParamsType
+  params: ParamsType,
+  testContext: TestContext,
+  txContext: TxContext
 ) => Promise<MetricsType>;
 
 export interface Report {
@@ -16,10 +29,10 @@ export interface Report {
   startReport(startTime: Date): void;
   endReport(endTime: Date): void;
   newMetric(
-    txIdx: number,
-    addrIdx: number,
     params: ParamsType,
-    metrics: MetricsType
+    metrics: MetricsType,
+    testContext: TestContext,
+    txContext: TxContext
   ): void;
   output(): any;
 }
