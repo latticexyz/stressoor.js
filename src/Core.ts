@@ -15,19 +15,21 @@ export async function runStressTest(
   nTx: number = 100,
   txDelayMs: number = 25,
   roundDelayMs: number = 0,
-  addrGenSeed: string = ""
+  addrGenSeed: string = "",
+  testContext: any = {}
 ): Promise<any> {
   const gun: GatlingGun = new GatlingGun(rpcProvider, nAddr, addrGenSeed);
 
-  const shoot: Types.ShootFunc = async (
-    wallet: RPC.Wallet,
-    txIdx: number,
-    addrIdx: number
-  ) => {
-    const params = paramsFunc(txIdx, addrIdx);
-    const metrics = await metricsFunc(callFunc, wallet, params);
+  const shoot: Types.ShootFunc = async (wallet, txIdx, addrIdx) => {
+    const txContext = {
+      wallet: wallet,
+      txIdx: txIdx,
+      addrIdx: addrIdx,
+    };
+    const params = paramsFunc(testContext, txContext);
+    const metrics = await metricsFunc(callFunc, params, testContext, txContext);
     for (let ii = 0; ii < reports.length; ii++) {
-      reports[ii].newMetric(txIdx, addrIdx, params, metrics);
+      reports[ii].newMetric(params, metrics, testContext, txContext);
     }
   };
 

@@ -15,10 +15,10 @@ class BaseReport implements Types.Report {
   startReport(startTime: Date): void {}
   endReport(endTime: Date): void {}
   newMetric(
-    txIdx: number,
-    addrIdx: number,
     params: Types.ParamsType,
-    metrics: Types.MetricsType
+    metrics: Types.MetricsType,
+    testContext: Types.TestContext,
+    txContext: Types.TxContext
   ): void {}
   output(): any {}
 }

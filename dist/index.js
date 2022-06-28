@@ -61,13 +61,18 @@ class GatlingGun {
     }
 }
 
-async function runStressTest(rpcProvider, paramsFunc, callFunc, metricsFunc, reports, initFuncs = [], async = true, nAddr = 100, nTx = 100, txDelayMs = 25, roundDelayMs = 0, addrGenSeed = "") {
+async function runStressTest(rpcProvider, paramsFunc, callFunc, metricsFunc, reports, initFuncs = [], async = true, nAddr = 100, nTx = 100, txDelayMs = 25, roundDelayMs = 0, addrGenSeed = "", testContext = {}) {
     const gun = new GatlingGun(rpcProvider, nAddr, addrGenSeed);
     const shoot = async (wallet, txIdx, addrIdx) => {
-        const params = paramsFunc(txIdx, addrIdx);
-        const metrics = await metricsFunc(callFunc, wallet, params);
+        const txContext = {
+            wallet: wallet,
+            txIdx: txIdx,
+            addrIdx: addrIdx,
+        };
+        const params = paramsFunc(testContext, txContext);
+        const metrics = await metricsFunc(callFunc, params, testContext, txContext);
         for (let ii = 0; ii < reports.length; ii++) {
-            reports[ii].newMetric(txIdx, addrIdx, params, metrics);
+            reports[ii].newMetric(params, metrics, testContext, txContext);
         }
     };
     for (let ii = 0; ii < initFuncs.length; ii++) {
@@ -94,17 +99,25 @@ async function runStressTest(rpcProvider, paramsFunc, callFunc, metricsFunc, rep
     return output;
 }
 
-const sendTransaction = async (wallet, params) => {
-    const hotNonce = wallet.getHotNonce();
+function log(testContext, subject, ...message) {
+    if (testContext.log === true || testContext[subject]) {
+        console.log(`${new Date().toISOString()} -- [${subject}]`, ...message);
+    }
+}
+
+const sendTransaction = async (params, testContext, txContext) => {
+    const hotNonce = txContext.wallet.getHotNonce();
     if (!isNaN(hotNonce)) {
         params.nonce = hotNonce;
     }
-    const tx = await wallet.sendTransaction(params);
+    const tx = await txContext.wallet.sendTransaction(params);
+    log(testContext, "tx", "sent transaction", JSON.stringify(params));
     return tx;
 };
-const sendTransactionGetReceipt = async (wallet, params) => {
-    const tx = await sendTransaction(wallet, params);
+const sendTransactionGetReceipt = async (params, testContext, txContext) => {
+    const tx = await sendTransaction(params, testContext, txContext);
     const receipt = await tx.wait();
+    log(testContext, "tx", "got receipt for transaction", JSON.stringify(params));
     return receipt;
 };
 
@@ -123,21 +136,21 @@ var Init = /*#__PURE__*/Object.freeze({
     initHotNonce: initHotNonce
 });
 
-const timeIt = async (callFunc, wallet, params) => {
+const timeIt = async (callFunc, params, testContext, txContext) => {
     const startTime = new Date();
-    await callFunc(wallet, params);
+    await callFunc(params, testContext, txContext);
     const endTime = new Date();
     return {
         milliseconds: endTime.getTime() - startTime.getTime(),
     };
 };
-const txInfo = async (callFunc, wallet, params) => {
-    const sentBlockNumber = await wallet.provider.getBlockNumber();
+const txInfo = async (callFunc, params, testContext, txContext) => {
+    const sentBlockNumber = await txContext.wallet.provider.getBlockNumber();
     const sentTime = new Date().getTime();
-    const hotNonce = wallet.getHotNonce();
+    const hotNonce = txContext.wallet.getHotNonce();
     let receipt;
     try {
-        receipt = await callFunc(wallet, params);
+        receipt = await callFunc(params, testContext, txContext);
     }
     catch (err) {
         return { error: err };
@@ -145,7 +158,7 @@ const txInfo = async (callFunc, wallet, params) => {
     const receiptTime = new Date().getTime();
     const receiptBlockNumber = receipt.blockNumber;
     return {
-        from: wallet.address,
+        from: txContext.wallet.address,
         hotNonce: hotNonce,
         milliseconds: receiptTime - sentTime,
         sentTime: sentTime,
@@ -221,7 +234,7 @@ class BaseReport {
     }
     startReport(startTime) { }
     endReport(endTime) { }
-    newMetric(txIdx, addrIdx, params, metrics) { }
+    newMetric(params, metrics, testContext, txContext) { }
     output() { }
 }
 // [?] Can you extend multiple classes?
@@ -359,5 +372,5 @@ var index = /*#__PURE__*/Object.freeze({
     Report: Report
 });
 
-export { index as Prefabs, HotNonceWallet as Wallet, runStressTest };
+export { index as Prefabs, HotNonceWallet as Wallet, log, runStressTest };
 //# sourceMappingURL=index.js.map
