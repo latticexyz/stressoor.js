@@ -1,6 +1,9 @@
 import * as Types from "../types";
 import { log } from "../Log";
 
+const formatTx = (tx: any) =>
+  `${tx.from.toLowerCase()}:${tx.nonce}:${tx.hash.slice(0, 42)}`;
+
 export const sendTransaction: Types.CallFunc = async (
   params,
   testContext,
@@ -11,7 +14,7 @@ export const sendTransaction: Types.CallFunc = async (
     params.nonce = hotNonce;
   }
   const tx = await txContext.wallet.sendTransaction(params);
-  log(testContext, "tx", "sent transaction", JSON.stringify(params));
+  log(testContext, "tx", "sent transaction", formatTx(tx));
   return tx;
 };
 
@@ -22,6 +25,6 @@ export const sendTransactionGetReceipt: Types.CallFunc = async (
 ) => {
   const tx = await sendTransaction(params, testContext, txContext);
   const receipt = await tx.wait();
-  log(testContext, "tx", "got receipt for transaction", JSON.stringify(params));
+  log(testContext, "tx", "got receipt for transaction", formatTx(tx));
   return receipt;
 };

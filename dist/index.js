@@ -105,19 +105,20 @@ function log(testContext, subject, ...message) {
     }
 }
 
+const formatTx = (tx) => `${tx.from.toLowerCase()}:${tx.nonce}:${tx.hash.slice(0, 42)}`;
 const sendTransaction = async (params, testContext, txContext) => {
     const hotNonce = txContext.wallet.getHotNonce();
     if (!isNaN(hotNonce)) {
         params.nonce = hotNonce;
     }
     const tx = await txContext.wallet.sendTransaction(params);
-    log(testContext, "tx", "sent transaction", JSON.stringify(params));
+    log(testContext, "tx", "sent transaction", formatTx(tx));
     return tx;
 };
 const sendTransactionGetReceipt = async (params, testContext, txContext) => {
     const tx = await sendTransaction(params, testContext, txContext);
     const receipt = await tx.wait();
-    log(testContext, "tx", "got receipt for transaction", JSON.stringify(params));
+    log(testContext, "tx", "got receipt for transaction", formatTx(tx));
     return receipt;
 };
 
