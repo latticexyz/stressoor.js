@@ -137,6 +137,14 @@ var Init = /*#__PURE__*/Object.freeze({
     initHotNonce: initHotNonce
 });
 
+const noMetric = async (callFunc, params, testContext, txContext) => {
+    await callFunc(params, testContext, txContext);
+    return {};
+};
+const noMetricNoWait = async (callFunc, params, testContext, txContext) => {
+    callFunc(params, testContext, txContext);
+    return {};
+};
 const timeIt = async (callFunc, params, testContext, txContext) => {
     const startTime = new Date();
     await callFunc(params, testContext, txContext);
@@ -174,6 +182,8 @@ const txInfo = async (callFunc, params, testContext, txContext) => {
 
 var Metrics = /*#__PURE__*/Object.freeze({
     __proto__: null,
+    noMetric: noMetric,
+    noMetricNoWait: noMetricNoWait,
     timeIt: timeIt,
     txInfo: txInfo
 });

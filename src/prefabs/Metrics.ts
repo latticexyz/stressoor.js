@@ -1,5 +1,25 @@
 import * as Types from "../types";
 
+export const noMetric: Types.MetricsFunc = async (
+  callFunc,
+  params,
+  testContext,
+  txContext
+) => {
+  await callFunc(params, testContext, txContext);
+  return {};
+};
+
+export const noMetricNoWait: Types.MetricsFunc = async (
+  callFunc,
+  params,
+  testContext,
+  txContext
+) => {
+  callFunc(params, testContext, txContext);
+  return {};
+};
+
 export const timeIt: Types.MetricsFunc = async (
   callFunc,
   params,
