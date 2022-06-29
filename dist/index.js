@@ -76,7 +76,7 @@ async function runStressTest(rpcProvider, paramsFunc, callFunc, metricsFunc, rep
         }
     };
     for (let ii = 0; ii < initFuncs.length; ii++) {
-        await gun.shoot(initFuncs[ii], nAddr, true, 5, 0);
+        await gun.shoot(initFuncs[ii], nAddr, async, txDelayMs, roundDelayMs);
     }
     const startTime = new Date();
     for (let ii = 0; ii < reports.length; ii++) {
