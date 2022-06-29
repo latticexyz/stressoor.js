@@ -34,7 +34,7 @@ export async function runStressTest(
   };
 
   for (let ii = 0; ii < initFuncs.length; ii++) {
-    await gun.shoot(initFuncs[ii], nAddr, true, 5, 0);
+    await gun.shoot(initFuncs[ii], nAddr, async, txDelayMs, roundDelayMs);
   }
 
   const startTime: Date = new Date();
