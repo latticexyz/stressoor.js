@@ -41,10 +41,10 @@ export class ReportDataArray extends ReportSelected {
   public data: any[] = [];
 
   newMetric(
-    txIdx: number,
-    addrIdx: number,
     params: Types.ParamsType,
-    metrics: Types.MetricsType
+    metrics: Types.MetricsType,
+    testContext: Types.TestContext,
+    txContext: Types.TxContext
   ): void {
     this.data.push(this.select(metrics));
   }
@@ -103,10 +103,10 @@ export class ReportMaxMinMean extends ReportSelected {
   public n: number = 0;
 
   newMetric(
-    txIdx: number,
-    addrIdx: number,
     params: Types.ParamsType,
-    metrics: Types.MetricsType
+    metrics: Types.MetricsType,
+    testContext: Types.TestContext,
+    txContext: Types.TxContext
   ): void {
     this.n++;
     const value: number = this.select(metrics);
