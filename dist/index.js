@@ -253,7 +253,7 @@ class ReportDataArray extends ReportSelected {
         super(...arguments);
         this.data = [];
     }
-    newMetric(txIdx, addrIdx, params, metrics) {
+    newMetric(params, metrics, testContext, txContext) {
         this.data.push(this.select(metrics));
     }
     output() {
@@ -303,7 +303,7 @@ class ReportMaxMinMean extends ReportSelected {
         this.mean = NaN;
         this.n = 0;
     }
-    newMetric(txIdx, addrIdx, params, metrics) {
+    newMetric(params, metrics, testContext, txContext) {
         this.n++;
         const value = this.select(metrics);
         if (Number.isNaN(this.max)) {
