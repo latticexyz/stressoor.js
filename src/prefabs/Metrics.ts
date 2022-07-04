@@ -44,12 +44,7 @@ export const txInfo: Types.MetricsFunc = async (
     await txContext.wallet.provider.getBlockNumber();
   const sentTime: number = new Date().getTime();
   const hotNonce: number = txContext.wallet.getHotNonce();
-  let receipt;
-  try {
-    receipt = await callFunc(params, testContext, txContext);
-  } catch (err) {
-    return { error: err };
-  }
+  let receipt = await callFunc(params, testContext, txContext);
   const receiptTime: number = new Date().getTime();
   const receiptBlockNumber: number = receipt.blockNumber;
   return {

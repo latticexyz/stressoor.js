@@ -157,13 +157,7 @@ const txInfo = async (callFunc, params, testContext, txContext) => {
     const sentBlockNumber = await txContext.wallet.provider.getBlockNumber();
     const sentTime = new Date().getTime();
     const hotNonce = txContext.wallet.getHotNonce();
-    let receipt;
-    try {
-        receipt = await callFunc(params, testContext, txContext);
-    }
-    catch (err) {
-        return { error: err };
-    }
+    let receipt = await callFunc(params, testContext, txContext);
     const receiptTime = new Date().getTime();
     const receiptBlockNumber = receipt.blockNumber;
     return {
