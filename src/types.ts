@@ -9,7 +9,7 @@ export type MetricsType = any;
 export type ParamsFunc = (
   testContext: TestContext,
   txContext: TxContext
-) => ParamsType;
+) => Promise<ParamsType>;
 
 export type CallFunc = (
   params: ParamsType,

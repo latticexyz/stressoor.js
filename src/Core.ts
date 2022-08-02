@@ -26,7 +26,7 @@ export async function runStressTest(
       txIdx: txIdx,
       addrIdx: addrIdx,
     };
-    const params = paramsFunc(testContext, txContext);
+    const params = await paramsFunc(testContext, txContext);
     const metrics = await metricsFunc(callFunc, params, testContext, txContext);
     for (let ii = 0; ii < reports.length; ii++) {
       reports[ii].newMetric(params, metrics, testContext, txContext);

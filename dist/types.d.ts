@@ -3,7 +3,7 @@ export declare type TestContext = any;
 export declare type TxContext = any;
 export declare type ParamsType = any;
 export declare type MetricsType = any;
-export declare type ParamsFunc = (testContext: TestContext, txContext: TxContext) => ParamsType;
+export declare type ParamsFunc = (testContext: TestContext, txContext: TxContext) => Promise<ParamsType>;
 export declare type CallFunc = (params: ParamsType, testContext: TestContext, txContext: TxContext) => Promise<any>;
 export declare type MetricsFunc = (callFunc: CallFunc, params: ParamsType, testContext: TestContext, txContext: TxContext) => Promise<MetricsType>;
 export interface Report {
