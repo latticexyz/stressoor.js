@@ -10,4 +10,9 @@ export default defineConfig({
         sourcemap: true,
     },
     plugins: [typescript()],
+    external: [
+        "@ethersproject/properties",
+        "@ethersproject/providers",
+        "@ethersproject/wallet"
+    ]
 });
