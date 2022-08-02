@@ -105,7 +105,7 @@ function log(testContext, subject, ...message) {
     }
 }
 
-const formatTx = (tx) => `${tx.from.toLowerCase()}:${tx.nonce}:${tx.hash.slice(0, 42)}`;
+const formatTx = (tx) => `from: ${tx.from.slice(0, 8)} nonce: ${tx.nonce} hash: ${tx.hash.toLowerCase()}`;
 const sendTransaction = async (params, testContext, txContext) => {
     const hotNonce = txContext.wallet.getHotNonce();
     if (!isNaN(hotNonce)) {

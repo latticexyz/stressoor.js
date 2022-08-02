@@ -2,7 +2,9 @@ import * as Types from "../types";
 import { log } from "../Log";
 
 const formatTx = (tx: any) =>
-  `${tx.from.toLowerCase()}:${tx.nonce}:${tx.hash.slice(0, 42)}`;
+  `from: ${tx.from.slice(0, 8)} nonce: ${
+    tx.nonce
+  } hash: ${tx.hash.toLowerCase()}`;
 
 export const sendTransaction: Types.CallFunc = async (
   params,
