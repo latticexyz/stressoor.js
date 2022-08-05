@@ -249,7 +249,7 @@ var Report = /*#__PURE__*/Object.freeze({
 });
 
 const defaultTxSenderConfig = {
-    provider: undefined,
+    rpcProvider: undefined,
     nAddr: 1,
     addrGenSeed: "",
 };
