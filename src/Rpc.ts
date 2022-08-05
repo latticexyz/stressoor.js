@@ -1,12 +1,13 @@
 import { Wallet as EthersWallet } from "@ethersproject/wallet";
 import {
+  Provider,
   JsonRpcProvider,
   WebSocketProvider,
   TransactionRequest,
   TransactionResponse,
 } from "@ethersproject/providers";
 import { Deferrable } from "@ethersproject/properties";
-export { JsonRpcProvider, WebSocketProvider };
+export { Provider, JsonRpcProvider, WebSocketProvider };
 
 class HookedWallet extends EthersWallet {
   hook_sendTransaction(): void {}

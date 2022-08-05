@@ -1,5 +1,5 @@
 import { Wallet } from '@ethersproject/wallet';
-export { JsonRpcProvider, WebSocketProvider } from '@ethersproject/providers';
+export { JsonRpcProvider, Provider, WebSocketProvider } from '@ethersproject/providers';
 
 class HookedWallet extends Wallet {
     hook_sendTransaction() { }
