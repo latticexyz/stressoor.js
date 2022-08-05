@@ -6,6 +6,9 @@ export type TxContext = any;
 export type ParamsType = any;
 export type MetricsType = any;
 
+export type StressConfig = any;
+export type TxSenderConfig = any;
+
 export type ParamsFunc = (
   testContext: TestContext,
   txContext: TxContext

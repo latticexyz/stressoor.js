@@ -30,7 +30,7 @@ class HotNonceWallet extends HookedWallet {
 async function sleep(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
-class GatlingGun {
+class TxSender {
     constructor(rpcProvider, nAddr = 100, seed = "") {
         this.wallets = [];
         this.initAddr(rpcProvider, nAddr, seed);
@@ -60,127 +60,6 @@ class GatlingGun {
         await Promise.all(promises);
     }
 }
-
-async function runStressTest(rpcProvider, paramsFunc, callFunc, metricsFunc, reports, initFuncs = [], async = true, nAddr = 100, nTx = 100, txDelayMs = 25, roundDelayMs = 0, addrGenSeed = "", testContext = {}) {
-    const gun = new GatlingGun(rpcProvider, nAddr, addrGenSeed);
-    const shoot = async (wallet, txIdx, addrIdx) => {
-        const txContext = {
-            wallet: wallet,
-            txIdx: txIdx,
-            addrIdx: addrIdx,
-        };
-        const params = await paramsFunc(testContext, txContext);
-        const metrics = await metricsFunc(callFunc, params, testContext, txContext);
-        for (let ii = 0; ii < reports.length; ii++) {
-            reports[ii].newMetric(params, metrics, testContext, txContext);
-        }
-    };
-    for (let ii = 0; ii < initFuncs.length; ii++) {
-        await gun.shoot(initFuncs[ii], nAddr, async, txDelayMs, roundDelayMs);
-    }
-    const startTime = new Date();
-    for (let ii = 0; ii < reports.length; ii++) {
-        reports[ii].startReport(startTime);
-    }
-    await gun.shoot(shoot, nTx, async, txDelayMs, roundDelayMs);
-    const endTime = new Date();
-    const output = {};
-    for (let ii = 0; ii < reports.length; ii++) {
-        const report = reports[ii];
-        report.endReport(endTime);
-        let name = report.getName();
-        let jj = 0;
-        while (name in output) {
-            name = report.getName() + `(${jj})`;
-            jj++;
-        }
-        output[name] = report.output();
-    }
-    return output;
-}
-
-function log(testContext, subject, ...message) {
-    if (testContext.log === true || testContext[subject]) {
-        console.log(`${new Date().toISOString()} -- [${subject}]`, ...message);
-    }
-}
-
-const formatTx = (tx) => `from: ${tx.from.slice(0, 8)} nonce: ${tx.nonce} hash: ${tx.hash.toLowerCase()}`;
-const sendTransaction = async (params, testContext, txContext) => {
-    const hotNonce = txContext.wallet.getHotNonce();
-    if (!isNaN(hotNonce)) {
-        params.nonce = hotNonce;
-    }
-    const tx = await txContext.wallet.sendTransaction(params);
-    log(testContext, "tx", "sent transaction", formatTx(tx));
-    return tx;
-};
-const sendTransactionGetReceipt = async (params, testContext, txContext) => {
-    const tx = await sendTransaction(params, testContext, txContext);
-    const receipt = await tx.wait();
-    log(testContext, "tx", "got receipt for transaction", formatTx(tx));
-    return receipt;
-};
-
-var Call = /*#__PURE__*/Object.freeze({
-    __proto__: null,
-    sendTransaction: sendTransaction,
-    sendTransactionGetReceipt: sendTransactionGetReceipt
-});
-
-const initHotNonce = async (wallet, txIdx, addrIdx) => {
-    await wallet.initHotNonce();
-};
-
-var Init = /*#__PURE__*/Object.freeze({
-    __proto__: null,
-    initHotNonce: initHotNonce
-});
-
-const noMetric = async (callFunc, params, testContext, txContext) => {
-    await callFunc(params, testContext, txContext);
-    return {};
-};
-const noMetricNoWait = async (callFunc, params, testContext, txContext) => {
-    callFunc(params, testContext, txContext);
-    return {};
-};
-const timeIt = async (callFunc, params, testContext, txContext) => {
-    const startTime = new Date();
-    await callFunc(params, testContext, txContext);
-    const endTime = new Date();
-    return {
-        milliseconds: endTime.getTime() - startTime.getTime(),
-    };
-};
-const txInfo = async (callFunc, params, testContext, txContext) => {
-    const sentBlockNumber = await txContext.wallet.provider.getBlockNumber();
-    const sentTime = new Date().getTime();
-    const hotNonce = txContext.wallet.getHotNonce();
-    let receipt = await callFunc(params, testContext, txContext);
-    const receiptTime = new Date().getTime();
-    const receiptBlockNumber = receipt.blockNumber;
-    return {
-        from: txContext.wallet.address,
-        hotNonce: hotNonce,
-        milliseconds: receiptTime - sentTime,
-        sentTime: sentTime,
-        receiptTime: receiptTime,
-        blockNumberDelta: receiptBlockNumber - sentBlockNumber,
-        status: receipt.status,
-        blockNumber: receipt.status,
-        sentBlockNumber: sentBlockNumber,
-        receiptBlockNumber: receiptBlockNumber,
-    };
-};
-
-var Metrics = /*#__PURE__*/Object.freeze({
-    __proto__: null,
-    noMetric: noMetric,
-    noMetricNoWait: noMetricNoWait,
-    timeIt: timeIt,
-    txInfo: txInfo
-});
 
 class Statistics {
     static ensureNotEmpty(arr) {
@@ -367,6 +246,142 @@ var Report = /*#__PURE__*/Object.freeze({
     ReportTimeTemplatedString: ReportTimeTemplatedString,
     ReportMaxMinMean: ReportMaxMinMean,
     ReportStats: ReportStats
+});
+
+const defaultTxSenderConfig = {
+    provider: undefined,
+    nAddr: 1,
+    addrGenSeed: "",
+};
+const defaultStressConfig = {
+    nTx: undefined,
+    async: true,
+    txDelayMs: 10,
+    roundDelayMs: 0,
+};
+const defaultReports = [new ReportTime()];
+const defaultInitFuncs = [];
+async function runStressTest(paramsFunc, callFunc, metricsFunc, reports = defaultReports, initFuncs = defaultInitFuncs, txSenderConfig = defaultTxSenderConfig, stressConfig = defaultStressConfig, testContext = {}) {
+    txSenderConfig = { ...defaultTxSenderConfig, ...txSenderConfig };
+    stressConfig = { ...defaultStressConfig, ...stressConfig };
+    const gun = new TxSender(txSenderConfig.rpcProvider, txSenderConfig.nAddr, txSenderConfig.addrGenSeed);
+    const shoot = async (wallet, txIdx, addrIdx) => {
+        const txContext = {
+            wallet: wallet,
+            txIdx: txIdx,
+            addrIdx: addrIdx,
+        };
+        const params = await paramsFunc(testContext, txContext);
+        const metrics = await metricsFunc(callFunc, params, testContext, txContext);
+        for (let ii = 0; ii < reports.length; ii++) {
+            reports[ii].newMetric(params, metrics, testContext, txContext);
+        }
+    };
+    for (let ii = 0; ii < initFuncs.length; ii++) {
+        await gun.shoot(initFuncs[ii], txSenderConfig.nAddr, stressConfig.async, stressConfig.txDelayMs, stressConfig.roundDelayMs);
+    }
+    const startTime = new Date();
+    for (let ii = 0; ii < reports.length; ii++) {
+        reports[ii].startReport(startTime);
+    }
+    await gun.shoot(shoot, stressConfig.nTx, stressConfig.async, stressConfig.txDelayMs, stressConfig.roundDelayMs);
+    const endTime = new Date();
+    const output = {};
+    for (let ii = 0; ii < reports.length; ii++) {
+        const report = reports[ii];
+        report.endReport(endTime);
+        let name = report.getName();
+        let jj = 0;
+        while (name in output) {
+            name = report.getName() + `(${jj})`;
+            jj++;
+        }
+        output[name] = report.output();
+    }
+    return output;
+}
+
+function log(testContext, subject, ...message) {
+    if (testContext.log === true || testContext[subject]) {
+        console.log(`${new Date().toISOString()} -- [${subject}]`, ...message);
+    }
+}
+
+const formatTx = (tx) => `from: ${tx.from.slice(0, 8)} nonce: ${tx.nonce} hash: ${tx.hash.toLowerCase()}`;
+const sendTransaction = async (params, testContext, txContext) => {
+    const hotNonce = txContext.wallet.getHotNonce();
+    if (!isNaN(hotNonce)) {
+        params.nonce = hotNonce;
+    }
+    const tx = await txContext.wallet.sendTransaction(params);
+    log(testContext, "tx", "sent transaction", formatTx(tx));
+    return tx;
+};
+const sendTransactionGetReceipt = async (params, testContext, txContext) => {
+    const tx = await sendTransaction(params, testContext, txContext);
+    const receipt = await tx.wait();
+    log(testContext, "tx", "got receipt for transaction", formatTx(tx));
+    return receipt;
+};
+
+var Call = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    sendTransaction: sendTransaction,
+    sendTransactionGetReceipt: sendTransactionGetReceipt
+});
+
+const initHotNonce = async (wallet, txIdx, addrIdx) => {
+    await wallet.initHotNonce();
+};
+
+var Init = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    initHotNonce: initHotNonce
+});
+
+const noMetric = async (callFunc, params, testContext, txContext) => {
+    await callFunc(params, testContext, txContext);
+    return {};
+};
+const noMetricNoWait = async (callFunc, params, testContext, txContext) => {
+    callFunc(params, testContext, txContext);
+    return {};
+};
+const timeIt = async (callFunc, params, testContext, txContext) => {
+    const startTime = new Date();
+    await callFunc(params, testContext, txContext);
+    const endTime = new Date();
+    return {
+        milliseconds: endTime.getTime() - startTime.getTime(),
+    };
+};
+const txInfo = async (callFunc, params, testContext, txContext) => {
+    const sentBlockNumber = await txContext.wallet.provider.getBlockNumber();
+    const sentTime = new Date().getTime();
+    const hotNonce = txContext.wallet.getHotNonce();
+    let receipt = await callFunc(params, testContext, txContext);
+    const receiptTime = new Date().getTime();
+    const receiptBlockNumber = receipt.blockNumber;
+    return {
+        from: txContext.wallet.address,
+        hotNonce: hotNonce,
+        milliseconds: receiptTime - sentTime,
+        sentTime: sentTime,
+        receiptTime: receiptTime,
+        blockNumberDelta: receiptBlockNumber - sentBlockNumber,
+        status: receipt.status,
+        blockNumber: receipt.status,
+        sentBlockNumber: sentBlockNumber,
+        receiptBlockNumber: receiptBlockNumber,
+    };
+};
+
+var Metrics = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    noMetric: noMetric,
+    noMetricNoWait: noMetricNoWait,
+    timeIt: timeIt,
+    txInfo: txInfo
 });
 
 var index = /*#__PURE__*/Object.freeze({
