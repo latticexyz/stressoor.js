@@ -4,18 +4,21 @@ import { GatlingGun } from "./Gatling";
 import * as Types from "./types";
 
 export async function runStressTest(
-  rpcProvider: RPC.JsonRpcProvider,
   paramsFunc: Types.ParamsFunc,
   callFunc: Types.CallFunc,
   metricsFunc: Types.MetricsFunc,
   reports: Types.Report[],
   initFuncs: Types.ShootFunc[] = [],
-  async: boolean = true,
-  nAddr: number = 100,
+  // stressConfig
   nTx: number = 100,
+  async: boolean = true,
   txDelayMs: number = 25,
   roundDelayMs: number = 0,
+  // txSenderConfig
+  rpcProvider: RPC.JsonRpcProvider,
+  nAddr: number = 100,
   addrGenSeed: string = "",
+  // ...
   testContext: any = {}
 ): Promise<any> {
   const gun: GatlingGun = new GatlingGun(rpcProvider, nAddr, addrGenSeed);
