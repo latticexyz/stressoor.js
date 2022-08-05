@@ -5,7 +5,7 @@ async function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export class GatlingGun {
+export class TxSender {
   public wallets: RPC.Wallet[] = [];
 
   constructor(

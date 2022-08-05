@@ -30,7 +30,7 @@ class HotNonceWallet extends HookedWallet {
 async function sleep(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
-class GatlingGun {
+class TxSender {
     constructor(rpcProvider, nAddr = 100, seed = "") {
         this.wallets = [];
         this.initAddr(rpcProvider, nAddr, seed);
@@ -61,8 +61,14 @@ class GatlingGun {
     }
 }
 
-async function runStressTest(rpcProvider, paramsFunc, callFunc, metricsFunc, reports, initFuncs = [], async = true, nAddr = 100, nTx = 100, txDelayMs = 25, roundDelayMs = 0, addrGenSeed = "", testContext = {}) {
-    const gun = new GatlingGun(rpcProvider, nAddr, addrGenSeed);
+async function runStressTest(paramsFunc, callFunc, metricsFunc, reports, initFuncs = [], 
+// stressConfig
+nTx = 100, async = true, txDelayMs = 25, roundDelayMs = 0, 
+// txSenderConfig
+rpcProvider, nAddr = 100, addrGenSeed = "", 
+// ...
+testContext = {}) {
+    const gun = new TxSender(rpcProvider, nAddr, addrGenSeed);
     const shoot = async (wallet, txIdx, addrIdx) => {
         const txContext = {
             wallet: wallet,

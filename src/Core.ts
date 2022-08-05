@@ -1,6 +1,6 @@
 import * as RPC from "./Rpc";
 
-import { GatlingGun } from "./Gatling";
+import { TxSender } from "./Sender";
 import * as Types from "./types";
 
 export async function runStressTest(
@@ -21,7 +21,7 @@ export async function runStressTest(
   // ...
   testContext: any = {}
 ): Promise<any> {
-  const gun: GatlingGun = new GatlingGun(rpcProvider, nAddr, addrGenSeed);
+  const gun: TxSender = new TxSender(rpcProvider, nAddr, addrGenSeed);
 
   const shoot: Types.ShootFunc = async (wallet, txIdx, addrIdx) => {
     const txContext = {
