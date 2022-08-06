@@ -1,6 +1,6 @@
 {
   "name": "@latticexyz/stressoor",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "repository": "https://github.com/latticexyz/stressoor.js",
   "license": "MIT",
   "main": "dist/index.js",
