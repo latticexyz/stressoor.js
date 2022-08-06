@@ -31,6 +31,8 @@ export async function runStressTest(
   txSenderConfig = { ...defaultTxSenderConfig, ...txSenderConfig };
   stressConfig = { ...defaultStressConfig, ...stressConfig };
 
+  // TODO: rename gun and shoot
+
   const gun: TxSender = new TxSender(
     txSenderConfig.rpcProvider,
     txSenderConfig.nAddr,

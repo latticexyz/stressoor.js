@@ -29,6 +29,7 @@ export class TxSender {
     }
   }
 
+  // TODO: rename addrIdx to walletIdx
   async shoot(
     shootFunc: Types.ShootFunc,
     nTx: number,

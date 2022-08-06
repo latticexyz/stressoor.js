@@ -9,6 +9,8 @@ export type MetricsType = any;
 export type StressConfig = any;
 export type TxSenderConfig = any;
 
+// TODO: consider putting txContext before testContext
+
 export type ParamsFunc = (
   testContext: TestContext,
   txContext: TxContext
