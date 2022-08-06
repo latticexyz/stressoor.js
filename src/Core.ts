@@ -38,11 +38,7 @@ export async function runStressTest(
   );
 
   const stress: Types.StressFunc = async (wallet, callIdx, walletIdx) => {
-    const callContext = {
-      wallet: wallet,
-      callIdx: callIdx,
-      walletIdx: walletIdx,
-    };
+    const callContext = { wallet, callIdx, walletIdx };
     const params = await paramsFunc(callContext, testContext);
     const metrics = await metricsFunc(
       callFunc,
