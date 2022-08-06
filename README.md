@@ -1,5 +1,7 @@
 # stressoor.js
 
+`npm install @latticexyz/stressoor`
+
 Stressoor.js makes it simple to write complete, rigorous blockchain stress-tests.
 
 We implemented fundamental stressing, measuring, and reporting primitives so you don't have to code them up from scratch.
