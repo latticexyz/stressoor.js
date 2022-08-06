@@ -8,6 +8,4 @@ Stressoor.js is made to build on top of. If you just want to stress-test a chain
 
 ## Stressoor 101 [WIP]
 
-`RPC.Wallet` is a wrapped [ethers.js](https://github.com/ethers-io/ethers.js) that can, optionally, keep track of it's transaction count aka nonce internally. This allows us to easily send multiple transactions from the same address in the same block.
-
-...
+The core function of stressoor is `runStressTest`. See it's [extensively commented code](/src/Core.ts) to get a deep understanding of how it works (_coming soon_).
