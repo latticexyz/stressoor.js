@@ -5,7 +5,7 @@ declare class BaseReport implements Types.Report {
     getName(): string;
     startReport(startTime: Date): void;
     endReport(endTime: Date): void;
-    newMetric(params: Types.ParamsType, metrics: Types.MetricsType, testContext: Types.TestContext, txContext: Types.TxContext): void;
+    newMetric(params: Types.ParamsType, metrics: Types.MetricsType, callContext: Types.CallContext, testContext: Types.TestContext): void;
     output(): any;
 }
 declare class ReportSelected extends BaseReport {
@@ -15,7 +15,7 @@ declare class ReportSelected extends BaseReport {
 }
 export declare class ReportDataArray extends ReportSelected {
     data: any[];
-    newMetric(params: Types.ParamsType, metrics: Types.MetricsType, testContext: Types.TestContext, txContext: Types.TxContext): void;
+    newMetric(params: Types.ParamsType, metrics: Types.MetricsType, callContext: Types.CallContext, testContext: Types.TestContext): void;
     output(): any;
 }
 export declare class ReportTime extends BaseReport {
@@ -36,7 +36,7 @@ export declare class ReportMaxMinMean extends ReportSelected {
     min: number;
     mean: number;
     n: number;
-    newMetric(params: Types.ParamsType, metrics: Types.MetricsType, testContext: Types.TestContext, txContext: Types.TxContext): void;
+    newMetric(params: Types.ParamsType, metrics: Types.MetricsType, callContext: Types.CallContext, testContext: Types.TestContext): void;
     output(): any;
 }
 export declare class ReportStats extends ReportDataArray {

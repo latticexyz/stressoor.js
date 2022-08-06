@@ -1,32 +1,30 @@
 import * as RPC from "./Rpc";
 
 export type TestContext = any;
-export type TxContext = any;
+export type CallContext = any;
 
 export type ParamsType = any;
 export type MetricsType = any;
 
 export type StressConfig = any;
-export type TxSenderConfig = any;
-
-// TODO: consider putting txContext before testContext
+export type StressoorConfig = any;
 
 export type ParamsFunc = (
-  testContext: TestContext,
-  txContext: TxContext
+  callContext: CallContext,
+  testContext: TestContext
 ) => Promise<ParamsType>;
 
 export type CallFunc = (
   params: ParamsType,
-  testContext: TestContext,
-  txContext: TxContext
+  callContext: CallContext,
+  testContext: TestContext
 ) => Promise<any>;
 
 export type MetricsFunc = (
   callFunc: CallFunc,
   params: ParamsType,
-  testContext: TestContext,
-  txContext: TxContext
+  callContext: CallContext,
+  testContext: TestContext
 ) => Promise<MetricsType>;
 
 export interface Report {
@@ -36,14 +34,14 @@ export interface Report {
   newMetric(
     params: ParamsType,
     metrics: MetricsType,
-    testContext: TestContext,
-    txContext: TxContext
+    callContext: CallContext,
+    testContext: TestContext
   ): void;
   output(): any;
 }
 
-export type ShootFunc = (
+export type StressFunc = (
   wallet: RPC.Wallet,
-  txIdx: number,
-  addrIdx: number
+  callIdx: number,
+  walletIdx: number
 ) => Promise<void>;

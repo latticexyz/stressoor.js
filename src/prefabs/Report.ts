@@ -17,8 +17,8 @@ class BaseReport implements Types.Report {
   newMetric(
     params: Types.ParamsType,
     metrics: Types.MetricsType,
-    testContext: Types.TestContext,
-    txContext: Types.TxContext
+    callContext: Types.CallContext,
+    testContext: Types.TestContext
   ): void {}
   output(): any {}
 }
@@ -43,8 +43,8 @@ export class ReportDataArray extends ReportSelected {
   newMetric(
     params: Types.ParamsType,
     metrics: Types.MetricsType,
-    testContext: Types.TestContext,
-    txContext: Types.TxContext
+    callContext: Types.CallContext,
+    testContext: Types.TestContext
   ): void {
     this.data.push(this.select(metrics));
   }
@@ -105,8 +105,8 @@ export class ReportMaxMinMean extends ReportSelected {
   newMetric(
     params: Types.ParamsType,
     metrics: Types.MetricsType,
-    testContext: Types.TestContext,
-    txContext: Types.TxContext
+    callContext: Types.CallContext,
+    testContext: Types.TestContext
   ): void {
     this.n++;
     const value: number = this.select(metrics);

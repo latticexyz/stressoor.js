@@ -3,31 +3,31 @@ import * as Types from "../types";
 export const noMetric: Types.MetricsFunc = async (
   callFunc,
   params,
-  testContext,
-  txContext
+  callContext,
+  testContext
 ) => {
-  await callFunc(params, testContext, txContext);
+  await callFunc(params, callContext, testContext);
   return {};
 };
 
 export const noMetricNoWait: Types.MetricsFunc = async (
   callFunc,
   params,
-  testContext,
-  txContext
+  callContext,
+  testContext
 ) => {
-  callFunc(params, testContext, txContext);
+  callFunc(params, callContext, testContext);
   return {};
 };
 
 export const timeIt: Types.MetricsFunc = async (
   callFunc,
   params,
-  testContext,
-  txContext
+  callContext,
+  testContext
 ) => {
   const startTime: Date = new Date();
-  await callFunc(params, testContext, txContext);
+  await callFunc(params, callContext, testContext);
   const endTime: Date = new Date();
   return {
     milliseconds: endTime.getTime() - startTime.getTime(),
@@ -37,18 +37,18 @@ export const timeIt: Types.MetricsFunc = async (
 export const txInfo: Types.MetricsFunc = async (
   callFunc,
   params,
-  testContext,
-  txContext
+  callContext,
+  testContext
 ) => {
   const sentBlockNumber: number =
-    await txContext.wallet.provider.getBlockNumber();
+    await callContext.wallet.provider.getBlockNumber();
   const sentTime: number = new Date().getTime();
-  const hotNonce: number = txContext.wallet.getHotNonce();
-  let receipt = await callFunc(params, testContext, txContext);
+  const hotNonce: number = callContext.wallet.getHotNonce();
+  let receipt = await callFunc(params, callContext, testContext);
   const receiptTime: number = new Date().getTime();
   const receiptBlockNumber: number = receipt.blockNumber;
   return {
-    from: txContext.wallet.address,
+    from: callContext.wallet.address,
     hotNonce: hotNonce,
     milliseconds: receiptTime - sentTime,
     sentTime: sentTime,

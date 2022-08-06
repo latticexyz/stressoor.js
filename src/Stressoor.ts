@@ -5,53 +5,52 @@ async function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export class TxSender {
+export class Stressoor {
   public wallets: RPC.Wallet[] = [];
 
   constructor(
     rpcProvider: RPC.JsonRpcProvider,
-    nAddr: number = 100,
+    nWallet: number = 100,
     seed: string = ""
   ) {
-    this.initAddr(rpcProvider, nAddr, seed);
+    this.initWallets(rpcProvider, nWallet, seed);
   }
 
-  initAddr(
+  initWallets(
     rpcProvider: RPC.JsonRpcProvider,
-    nAddr: number,
+    nWallet: number,
     seed: string
   ): void {
     this.wallets = [];
-    for (let ii = 1; ii < nAddr + 1; ii++) {
+    for (let ii = 1; ii < nWallet + 1; ii++) {
       const pKey: string =
         "0x" + seed + ii.toString().padStart(64 - seed.length, "0");
       this.wallets.push(new RPC.Wallet(pKey, rpcProvider));
     }
   }
 
-  // TODO: rename addrIdx to walletIdx
-  async shoot(
-    shootFunc: Types.ShootFunc,
-    nTx: number,
+  async stress(
+    stressFunc: Types.StressFunc,
+    nCalls: number,
     async: boolean,
-    txDelayMs: number,
+    callDelayMs: number,
     roundDelayMs: number
   ): Promise<void> {
     const promises: Promise<unknown>[] = [];
-    for (let txIdx = 0; txIdx < nTx; txIdx++) {
-      const addrIdx = txIdx % this.wallets.length;
-      if (addrIdx == 0 && txIdx != 0) await sleep(roundDelayMs);
-      const pp: Promise<unknown> = shootFunc(
-        this.wallets[addrIdx],
-        txIdx,
-        addrIdx
+    for (let callIdx = 0; callIdx < nCalls; callIdx++) {
+      const walletIdx = callIdx % this.wallets.length;
+      if (walletIdx == 0 && callIdx != 0) await sleep(roundDelayMs);
+      const pp: Promise<unknown> = stressFunc(
+        this.wallets[walletIdx],
+        callIdx,
+        walletIdx
       );
       if (async) {
         promises.push(pp);
       } else {
         await pp;
       }
-      await sleep(txDelayMs);
+      await sleep(callDelayMs);
     }
     await Promise.all(promises);
   }

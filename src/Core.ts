@@ -1,61 +1,66 @@
-import { TxSender } from "./Sender";
+import { Stressoor } from "./Stressoor";
 import { ReportTime } from "./prefabs/Report";
 import * as Types from "./types";
 
-const defaultTxSenderConfig: Types.TxSenderConfig = {
+const defaultStressoorConfig: Types.StressoorConfig = {
   rpcProvider: undefined,
-  nAddr: 1,
-  addrGenSeed: "",
+  nWallet: 1,
+  walletGenSeed: "",
 };
 
 const defaultStressConfig: Types.StressConfig = {
-  nTx: undefined,
+  nCalls: undefined,
   async: true,
-  txDelayMs: 10,
+  callDelayMs: 10,
   roundDelayMs: 0,
 };
 
 const defaultReports: Types.Report[] = [new ReportTime()];
-const defaultInitFuncs: Types.ShootFunc[] = [];
+const defaultInitFuncs: Types.StressFunc[] = [];
 
 export async function runStressTest(
   paramsFunc: Types.ParamsFunc,
   callFunc: Types.CallFunc,
   metricsFunc: Types.MetricsFunc,
   reports: Types.Report[] = defaultReports,
-  initFuncs: Types.ShootFunc[] = defaultInitFuncs,
-  txSenderConfig: Types.TxSenderConfig = defaultTxSenderConfig,
+  initFuncs: Types.StressFunc[] = defaultInitFuncs,
+  stressoorConfig: Types.StressoorConfig = defaultStressoorConfig,
   stressConfig: Types.StressConfig = defaultStressConfig,
   testContext: Types.TestContext = {}
 ): Promise<any> {
-  txSenderConfig = { ...defaultTxSenderConfig, ...txSenderConfig };
+  stressoorConfig = { ...defaultStressoorConfig, ...stressoorConfig };
   stressConfig = { ...defaultStressConfig, ...stressConfig };
 
-  const txSender: TxSender = new TxSender(
-    txSenderConfig.rpcProvider,
-    txSenderConfig.nAddr,
-    txSenderConfig.addrGenSeed
+  const stressoor: Stressoor = new Stressoor(
+    stressoorConfig.rpcProvider,
+    stressoorConfig.nWallet,
+    stressoorConfig.walletGenSeed
   );
 
-  const shoot: Types.ShootFunc = async (wallet, txIdx, addrIdx) => {
-    const txContext = {
+  const stress: Types.StressFunc = async (wallet, callIdx, walletIdx) => {
+    const callContext = {
       wallet: wallet,
-      txIdx: txIdx,
-      addrIdx: addrIdx,
+      callIdx: callIdx,
+      walletIdx: walletIdx,
     };
-    const params = await paramsFunc(testContext, txContext);
-    const metrics = await metricsFunc(callFunc, params, testContext, txContext);
+    const params = await paramsFunc(callContext, testContext);
+    const metrics = await metricsFunc(
+      callFunc,
+      params,
+      callContext,
+      testContext
+    );
     for (let ii = 0; ii < reports.length; ii++) {
-      reports[ii].newMetric(params, metrics, testContext, txContext);
+      reports[ii].newMetric(params, metrics, callContext, testContext);
     }
   };
 
   for (let ii = 0; ii < initFuncs.length; ii++) {
-    await txSender.shoot(
+    await stressoor.stress(
       initFuncs[ii],
-      txSenderConfig.nAddr,
+      stressoorConfig.nWallet,
       stressConfig.async,
-      stressConfig.txDelayMs,
+      stressConfig.callDelayMs,
       stressConfig.roundDelayMs
     );
   }
@@ -66,11 +71,11 @@ export async function runStressTest(
     reports[ii].startReport(startTime);
   }
 
-  await txSender.shoot(
-    shoot,
-    stressConfig.nTx,
+  await stressoor.stress(
+    stress,
+    stressConfig.nCalls,
     stressConfig.async,
-    stressConfig.txDelayMs,
+    stressConfig.callDelayMs,
     stressConfig.roundDelayMs
   );
 

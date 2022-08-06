@@ -1,18 +1,18 @@
 import * as RPC from "./Rpc";
 export declare type TestContext = any;
-export declare type TxContext = any;
+export declare type CallContext = any;
 export declare type ParamsType = any;
 export declare type MetricsType = any;
 export declare type StressConfig = any;
-export declare type TxSenderConfig = any;
-export declare type ParamsFunc = (testContext: TestContext, txContext: TxContext) => Promise<ParamsType>;
-export declare type CallFunc = (params: ParamsType, testContext: TestContext, txContext: TxContext) => Promise<any>;
-export declare type MetricsFunc = (callFunc: CallFunc, params: ParamsType, testContext: TestContext, txContext: TxContext) => Promise<MetricsType>;
+export declare type StressoorConfig = any;
+export declare type ParamsFunc = (callContext: CallContext, testContext: TestContext) => Promise<ParamsType>;
+export declare type CallFunc = (params: ParamsType, callContext: CallContext, testContext: TestContext) => Promise<any>;
+export declare type MetricsFunc = (callFunc: CallFunc, params: ParamsType, callContext: CallContext, testContext: TestContext) => Promise<MetricsType>;
 export interface Report {
     getName(): string;
     startReport(startTime: Date): void;
     endReport(endTime: Date): void;
-    newMetric(params: ParamsType, metrics: MetricsType, testContext: TestContext, txContext: TxContext): void;
+    newMetric(params: ParamsType, metrics: MetricsType, callContext: CallContext, testContext: TestContext): void;
     output(): any;
 }
-export declare type ShootFunc = (wallet: RPC.Wallet, txIdx: number, addrIdx: number) => Promise<void>;
+export declare type StressFunc = (wallet: RPC.Wallet, callIdx: number, walletIdx: number) => Promise<void>;
