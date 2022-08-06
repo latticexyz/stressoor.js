@@ -42,6 +42,7 @@ class TxSender {
             this.wallets.push(new HotNonceWallet(pKey, rpcProvider));
         }
     }
+    // TODO: rename addrIdx to walletIdx
     async shoot(shootFunc, nTx, async, txDelayMs, roundDelayMs) {
         const promises = [];
         for (let txIdx = 0; txIdx < nTx; txIdx++) {
@@ -264,7 +265,8 @@ const defaultInitFuncs = [];
 async function runStressTest(paramsFunc, callFunc, metricsFunc, reports = defaultReports, initFuncs = defaultInitFuncs, txSenderConfig = defaultTxSenderConfig, stressConfig = defaultStressConfig, testContext = {}) {
     txSenderConfig = { ...defaultTxSenderConfig, ...txSenderConfig };
     stressConfig = { ...defaultStressConfig, ...stressConfig };
-    const gun = new TxSender(txSenderConfig.rpcProvider, txSenderConfig.nAddr, txSenderConfig.addrGenSeed);
+    // TODO: rename txSender and shoot
+    const txSender = new TxSender(txSenderConfig.rpcProvider, txSenderConfig.nAddr, txSenderConfig.addrGenSeed);
     const shoot = async (wallet, txIdx, addrIdx) => {
         const txContext = {
             wallet: wallet,
@@ -278,13 +280,13 @@ async function runStressTest(paramsFunc, callFunc, metricsFunc, reports = defaul
         }
     };
     for (let ii = 0; ii < initFuncs.length; ii++) {
-        await gun.shoot(initFuncs[ii], txSenderConfig.nAddr, stressConfig.async, stressConfig.txDelayMs, stressConfig.roundDelayMs);
+        await txSender.shoot(initFuncs[ii], txSenderConfig.nAddr, stressConfig.async, stressConfig.txDelayMs, stressConfig.roundDelayMs);
     }
     const startTime = new Date();
     for (let ii = 0; ii < reports.length; ii++) {
         reports[ii].startReport(startTime);
     }
-    await gun.shoot(shoot, stressConfig.nTx, stressConfig.async, stressConfig.txDelayMs, stressConfig.roundDelayMs);
+    await txSender.shoot(shoot, stressConfig.nTx, stressConfig.async, stressConfig.txDelayMs, stressConfig.roundDelayMs);
     const endTime = new Date();
     const output = {};
     for (let ii = 0; ii < reports.length; ii++) {

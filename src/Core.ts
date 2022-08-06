@@ -31,9 +31,7 @@ export async function runStressTest(
   txSenderConfig = { ...defaultTxSenderConfig, ...txSenderConfig };
   stressConfig = { ...defaultStressConfig, ...stressConfig };
 
-  // TODO: rename gun and shoot
-
-  const gun: TxSender = new TxSender(
+  const txSender: TxSender = new TxSender(
     txSenderConfig.rpcProvider,
     txSenderConfig.nAddr,
     txSenderConfig.addrGenSeed
@@ -53,7 +51,7 @@ export async function runStressTest(
   };
 
   for (let ii = 0; ii < initFuncs.length; ii++) {
-    await gun.shoot(
+    await txSender.shoot(
       initFuncs[ii],
       txSenderConfig.nAddr,
       stressConfig.async,
@@ -68,7 +66,7 @@ export async function runStressTest(
     reports[ii].startReport(startTime);
   }
 
-  await gun.shoot(
+  await txSender.shoot(
     shoot,
     stressConfig.nTx,
     stressConfig.async,
