@@ -10,7 +10,7 @@ Stressoor.js is made to build on top of. If you just want to stress-test a chain
 
 ## Stressoor 101 [WIP]
 
-The `Stressoor` object initializes a set number of deterministically generated addresses. We call, `Stressoor.stress(stressFunc, nCalls, ...)` to cyclically iterate through them until the desired number of calls have been made.
+The `Stressoor` object initializes a set number of deterministically generated wallets. We call, `Stressoor.stress(stressFunc, nCalls, ...)` to cyclically iterate through them until the desired number of calls have been made.
 
 The stressoor will call a `stressFunc` with each of those wallets.
 
