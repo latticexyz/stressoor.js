@@ -266,11 +266,7 @@ async function runStressTest(paramsFunc, callFunc, metricsFunc, reports = defaul
     stressConfig = { ...defaultStressConfig, ...stressConfig };
     const stressoor = new Stressoor(stressoorConfig.rpcProvider, stressoorConfig.nWallet, stressoorConfig.walletGenSeed);
     const stress = async (wallet, callIdx, walletIdx) => {
-        const callContext = {
-            wallet: wallet,
-            callIdx: callIdx,
-            walletIdx: walletIdx,
-        };
+        const callContext = { wallet, callIdx, walletIdx };
         const params = await paramsFunc(callContext, testContext);
         const metrics = await metricsFunc(callFunc, params, callContext, testContext);
         for (let ii = 0; ii < reports.length; ii++) {
