@@ -10,19 +10,19 @@ export class Stressoor {
 
   constructor(
     rpcProvider: RPC.JsonRpcProvider,
-    nWallet: number = 100,
+    nWallets: number = 100,
     seed: string = ""
   ) {
-    this.initWallets(rpcProvider, nWallet, seed);
+    this.initWallets(rpcProvider, nWallets, seed);
   }
 
   initWallets(
     rpcProvider: RPC.JsonRpcProvider,
-    nWallet: number,
+    nWallets: number,
     seed: string
   ): void {
     this.wallets = [];
-    for (let ii = 1; ii < nWallet + 1; ii++) {
+    for (let ii = 1; ii < nWallets + 1; ii++) {
       const pKey: string =
         "0x" + seed + ii.toString().padStart(64 - seed.length, "0");
       this.wallets.push(new RPC.Wallet(pKey, rpcProvider));

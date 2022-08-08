@@ -4,7 +4,7 @@ import * as Types from "./types";
 
 const defaultStressoorConfig: Types.StressoorConfig = {
   rpcProvider: undefined,
-  nWallet: 1,
+  nWallets: 1,
   walletGenSeed: "",
 };
 
@@ -33,7 +33,7 @@ export async function runStressTest(
 
   const stressoor: Stressoor = new Stressoor(
     stressoorConfig.rpcProvider,
-    stressoorConfig.nWallet,
+    stressoorConfig.nWallets,
     stressoorConfig.walletGenSeed
   );
 
@@ -54,7 +54,7 @@ export async function runStressTest(
   for (let ii = 0; ii < initFuncs.length; ii++) {
     await stressoor.stress(
       initFuncs[ii],
-      stressoorConfig.nWallet,
+      stressoorConfig.nWallets,
       stressConfig.async,
       stressConfig.callDelayMs,
       stressConfig.roundDelayMs
