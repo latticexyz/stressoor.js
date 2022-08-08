@@ -31,13 +31,13 @@ async function sleep(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
 class Stressoor {
-    constructor(rpcProvider, nWallet = 100, seed = "") {
+    constructor(rpcProvider, nWallets = 100, seed = "") {
         this.wallets = [];
-        this.initWallets(rpcProvider, nWallet, seed);
+        this.initWallets(rpcProvider, nWallets, seed);
     }
-    initWallets(rpcProvider, nWallet, seed) {
+    initWallets(rpcProvider, nWallets, seed) {
         this.wallets = [];
-        for (let ii = 1; ii < nWallet + 1; ii++) {
+        for (let ii = 1; ii < nWallets + 1; ii++) {
             const pKey = "0x" + seed + ii.toString().padStart(64 - seed.length, "0");
             this.wallets.push(new HotNonceWallet(pKey, rpcProvider));
         }
@@ -250,7 +250,7 @@ var Report = /*#__PURE__*/Object.freeze({
 
 const defaultStressoorConfig = {
     rpcProvider: undefined,
-    nWallet: 1,
+    nWallets: 1,
     walletGenSeed: "",
 };
 const defaultStressConfig = {
@@ -264,7 +264,7 @@ const defaultInitFuncs = [];
 async function runStressTest(paramsFunc, callFunc, metricsFunc, reports = defaultReports, initFuncs = defaultInitFuncs, stressoorConfig = defaultStressoorConfig, stressConfig = defaultStressConfig, testContext = {}) {
     stressoorConfig = { ...defaultStressoorConfig, ...stressoorConfig };
     stressConfig = { ...defaultStressConfig, ...stressConfig };
-    const stressoor = new Stressoor(stressoorConfig.rpcProvider, stressoorConfig.nWallet, stressoorConfig.walletGenSeed);
+    const stressoor = new Stressoor(stressoorConfig.rpcProvider, stressoorConfig.nWallets, stressoorConfig.walletGenSeed);
     const stress = async (wallet, callIdx, walletIdx) => {
         const callContext = { wallet, callIdx, walletIdx };
         const params = await paramsFunc(callContext, testContext);
@@ -274,7 +274,7 @@ async function runStressTest(paramsFunc, callFunc, metricsFunc, reports = defaul
         }
     };
     for (let ii = 0; ii < initFuncs.length; ii++) {
-        await stressoor.stress(initFuncs[ii], stressoorConfig.nWallet, stressConfig.async, stressConfig.callDelayMs, stressConfig.roundDelayMs);
+        await stressoor.stress(initFuncs[ii], stressoorConfig.nWallets, stressConfig.async, stressConfig.callDelayMs, stressConfig.roundDelayMs);
     }
     const startTime = new Date();
     for (let ii = 0; ii < reports.length; ii++) {
