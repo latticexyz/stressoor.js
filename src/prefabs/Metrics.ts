@@ -58,5 +58,7 @@ export const txInfo: Types.MetricsFunc = async (
     blockNumber: receipt.status,
     sentBlockNumber: sentBlockNumber,
     receiptBlockNumber: receiptBlockNumber,
+    gasUsed: receipt.gasUsed.toNumber(),
+    nEvents: receipt.logs.length,
   };
 };

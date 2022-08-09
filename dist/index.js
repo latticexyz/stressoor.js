@@ -369,6 +369,8 @@ const txInfo = async (callFunc, params, callContext, testContext) => {
         blockNumber: receipt.status,
         sentBlockNumber: sentBlockNumber,
         receiptBlockNumber: receiptBlockNumber,
+        gasUsed: receipt.gasUsed.toNumber(),
+        nEvents: receipt.logs.length,
     };
 };
 
