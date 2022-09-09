@@ -146,8 +146,22 @@ export class ReportStats extends ReportDataArray {
   }
 
   output(): any {
+    if (this.data.length === 0) {
+      return {
+        n: 0,
+        min: null,
+        max: null,
+        range: null,
+        mean: null,
+        median: null,
+        variance: null,
+        stddev: null,
+        percentiles: null,
+      };
+    }
     return {
       stats: {
+        n: this.data.length,
         min: Statistics.min(this.data),
         max: Statistics.max(this.data),
         range: Statistics.range(this.data),
