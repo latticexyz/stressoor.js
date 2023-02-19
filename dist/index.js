@@ -404,5 +404,5 @@ var index = /*#__PURE__*/Object.freeze({
     Report: Report
 });
 
-export { index as Prefabs, HotNonceWallet as Wallet, log, runStressTest };
+export { index as Prefabs, Stressoor, HotNonceWallet as Wallet, log, runStressTest };
 //# sourceMappingURL=index.js.map
