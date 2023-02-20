@@ -1,7 +1,8 @@
 import * as Types from "../types";
+import * as RPC from "../Rpc";
 import { log } from "../Log";
 
-const formatTx = (tx: any) =>
+const formatTx = (tx: RPC.TransactionResponse) =>
   `from: ${tx.from.slice(0, 8)} nonce: ${
     tx.nonce
   } hash: ${tx.hash.toLowerCase()}`;

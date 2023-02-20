@@ -1,5 +1,5 @@
 export class Statistics {
-  private static ensureNotEmpty(arr: readonly number[]): void {
+  private static ensureNotEmpty(arr: readonly number[]) {
     if (arr.length === 0) {
       throw new Error("The array must not be empty.");
     }

@@ -6,17 +6,17 @@ declare class BaseReport implements Types.Report {
     startReport(startTime: Date): void;
     endReport(endTime: Date): void;
     newMetric(params: Types.ParamsType, metrics: Types.MetricsType, callContext: Types.CallContext, testContext: Types.TestContext): void;
-    output(): any;
+    output(): Types.ReportOutput;
 }
 declare class ReportSelected extends BaseReport {
     selector: string;
     constructor(name: string, selector?: string);
-    select(data: any): any;
+    select<T>(data: Types.MetricsType): T;
 }
-export declare class ReportDataArray extends ReportSelected {
-    data: any[];
+export declare class ReportDataArray<T> extends ReportSelected {
+    data: T[];
     newMetric(params: Types.ParamsType, metrics: Types.MetricsType, callContext: Types.CallContext, testContext: Types.TestContext): void;
-    output(): any;
+    output(): Types.ReportOutput;
 }
 export declare class ReportTime extends BaseReport {
     startTime: number;
@@ -24,12 +24,12 @@ export declare class ReportTime extends BaseReport {
     constructor(name?: string);
     startReport(startDate: Date): void;
     endReport(endDate: Date): void;
-    output(): any;
+    output(): Types.ReportOutput;
 }
 export declare class ReportTimeTemplatedString extends ReportTime {
     urlTemplate: string;
     constructor(name: string, urlTemplate: string);
-    output(): any;
+    output(): Types.ReportOutput;
 }
 export declare class ReportMaxMinMean extends ReportSelected {
     max: number;
@@ -37,11 +37,13 @@ export declare class ReportMaxMinMean extends ReportSelected {
     mean: number;
     n: number;
     newMetric(params: Types.ParamsType, metrics: Types.MetricsType, callContext: Types.CallContext, testContext: Types.TestContext): void;
-    output(): any;
+    output(): Types.ReportOutput;
 }
-export declare class ReportStats extends ReportDataArray {
+export declare class ReportStats extends ReportDataArray<number> {
     percentileLabels: number[];
-    getPercentiles(): any;
-    output(): any;
+    getPercentiles(): {
+        [name: number]: number;
+    };
+    output(): Types.ReportOutput;
 }
 export {};

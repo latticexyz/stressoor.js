@@ -1,9 +1,7 @@
 import * as Types from "../types";
 
 export const initHotNonce: Types.StressFunc = async (
-  wallet,
-  callIdx,
-  walletIdx
+  callContext: Types.CallContext
 ) => {
-  await wallet.initHotNonce();
+  await callContext.wallet.initHotNonce();
 };

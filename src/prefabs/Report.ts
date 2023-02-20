@@ -12,18 +12,19 @@ class BaseReport implements Types.Report {
     return this.name;
   }
 
-  startReport(startTime: Date): void {}
-  endReport(endTime: Date): void {}
+  startReport(startTime: Date) {}
+  endReport(endTime: Date) {}
   newMetric(
     params: Types.ParamsType,
     metrics: Types.MetricsType,
     callContext: Types.CallContext,
     testContext: Types.TestContext
-  ): void {}
-  output(): any {}
+  ) {}
+  output(): Types.ReportOutput {
+    return {};
+  }
 }
 
-// [?] Can you extend multiple classes?
 class ReportSelected extends BaseReport {
   public selector: string;
 
@@ -32,24 +33,24 @@ class ReportSelected extends BaseReport {
     this.selector = selector;
   }
 
-  select(data: any): any {
+  select<T>(data: Types.MetricsType): T {
     return this.selector == "" ? data : data[this.selector];
   }
 }
 
-export class ReportDataArray extends ReportSelected {
-  public data: any[] = [];
+export class ReportDataArray<T> extends ReportSelected {
+  public data: T[] = [];
 
   newMetric(
     params: Types.ParamsType,
     metrics: Types.MetricsType,
     callContext: Types.CallContext,
     testContext: Types.TestContext
-  ): void {
-    this.data.push(this.select(metrics));
+  ) {
+    this.data.push(this.select<T>(metrics));
   }
 
-  output(): any {
+  output(): Types.ReportOutput {
     return {
       data: this.data,
     };
@@ -57,20 +58,20 @@ export class ReportDataArray extends ReportSelected {
 }
 
 export class ReportTime extends BaseReport {
-  public startTime: number = NaN;
-  public endTime: number = NaN;
+  public startTime = NaN;
+  public endTime = NaN;
 
   constructor(name: string = "time") {
     super(name);
   }
 
-  startReport(startDate: Date): void {
+  startReport(startDate: Date) {
     this.startTime = startDate.getTime();
   }
-  endReport(endDate: Date): void {
+  endReport(endDate: Date) {
     this.endTime = endDate.getTime();
   }
-  output(): any {
+  output(): Types.ReportOutput {
     return {
       startTime: this.startTime,
       endTime: this.endTime,
@@ -87,7 +88,7 @@ export class ReportTimeTemplatedString extends ReportTime {
     this.urlTemplate = urlTemplate;
   }
 
-  output(): any {
+  output(): Types.ReportOutput {
     return {
       url: this.urlTemplate
         .replace("$startTime", this.startTime.toString())
@@ -97,19 +98,19 @@ export class ReportTimeTemplatedString extends ReportTime {
 }
 
 export class ReportMaxMinMean extends ReportSelected {
-  public max: number = NaN;
-  public min: number = NaN;
-  public mean: number = NaN;
-  public n: number = 0;
+  public max = NaN;
+  public min = NaN;
+  public mean = NaN;
+  public n = 0;
 
   newMetric(
     params: Types.ParamsType,
     metrics: Types.MetricsType,
     callContext: Types.CallContext,
     testContext: Types.TestContext
-  ): void {
+  ) {
     this.n++;
-    const value: number = this.select(metrics);
+    const value = this.select<number>(metrics);
     if (Number.isNaN(this.max)) {
       this.max = value;
       this.min = value;
@@ -121,7 +122,7 @@ export class ReportMaxMinMean extends ReportSelected {
     this.mean = (this.mean * (this.n - 1) + value) / this.n;
   }
 
-  output(): any {
+  output(): Types.ReportOutput {
     return {
       n: this.n,
       max: this.max,
@@ -131,21 +132,21 @@ export class ReportMaxMinMean extends ReportSelected {
   }
 }
 
-export class ReportStats extends ReportDataArray {
-  public percentileLabels: number[] = [1, 5, 10, 25, 50, 75, 90, 95, 99];
+export class ReportStats extends ReportDataArray<number> {
+  public percentileLabels = [1, 5, 10, 25, 50, 75, 90, 95, 99];
 
-  getPercentiles(): any {
+  getPercentiles(): { [name: number]: number } {
     const sortedData = Statistics.sort(this.data);
     const percentiles: { [name: number]: number } = {};
     for (let ii = 0; ii < this.percentileLabels.length; ii++) {
-      const label: number = this.percentileLabels[ii];
+      const label = this.percentileLabels[ii];
       percentiles[label] =
         sortedData[Math.floor((label / 100) * sortedData.length)];
     }
     return percentiles;
   }
 
-  output(): any {
+  output(): Types.ReportOutput {
     if (this.data.length === 0) {
       return {
         n: 0,

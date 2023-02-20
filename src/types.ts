@@ -1,13 +1,38 @@
 import * as RPC from "./Rpc";
 
-export type TestContext = any;
-export type CallContext = any;
+// Stressoor
+
+export type CallContext = {
+  wallet: RPC.Wallet;
+  callIdx: number;
+  walletIdx: number;
+};
+
+export type StressTestConfig = {
+  nCalls: number;
+  async: boolean;
+  callDelayMs: number;
+  roundDelayMs: number;
+};
+
+export type StressoorConfig = {
+  rpcProvider: RPC.JsonRpcProvider;
+  nWallets: number;
+  walletGenSeed: string;
+};
+
+export type StressFunc = (callContext: CallContext) => Promise<void>;
+
+// Core
+
+export type TestContext = {
+  log: boolean;
+};
+
+export type StressTestOutput = { [name: string]: ReportOutput };
 
 export type ParamsType = any;
 export type MetricsType = any;
-
-export type StressConfig = any;
-export type StressoorConfig = any;
 
 export type ParamsFunc = (
   callContext: CallContext,
@@ -27,6 +52,8 @@ export type MetricsFunc = (
   testContext: TestContext
 ) => Promise<MetricsType>;
 
+export type ReportOutput = { [name: string]: any };
+
 export interface Report {
   getName(): string;
   startReport(startTime: Date): void;
@@ -37,11 +64,5 @@ export interface Report {
     callContext: CallContext,
     testContext: TestContext
   ): void;
-  output(): any;
+  output(): ReportOutput;
 }
-
-export type StressFunc = (
-  wallet: RPC.Wallet,
-  callIdx: number,
-  walletIdx: number
-) => Promise<void>;
