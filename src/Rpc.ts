@@ -4,10 +4,11 @@ import {
   WebSocketProvider,
   TransactionRequest,
   TransactionResponse,
+  TransactionReceipt,
 } from "@ethersproject/providers";
 import { Deferrable } from "@ethersproject/properties";
 export { JsonRpcProvider, WebSocketProvider };
-export type { TransactionRequest, TransactionResponse };
+export type { TransactionRequest, TransactionResponse, TransactionReceipt };
 
 class HookedWallet extends EthersWallet {
   hook_sendTransaction() {}

@@ -29,38 +29,35 @@ export type TestContext = {
   log: boolean;
 };
 
-export type StressTestOutput = { [name: string]: ReportOutput };
+export type StressTestOutput = { [key: string]: ReportOutput };
 
-export type ParamsType = any;
-export type MetricsType = any;
-
-export type ParamsFunc = (
+export type ParamsFunc<P> = (
   callContext: CallContext,
   testContext: TestContext
-) => Promise<ParamsType>;
+) => Promise<P>;
 
-export type CallFunc = (
-  params: ParamsType,
+export type CallFunc<P, C> = (
+  params: P,
   callContext: CallContext,
   testContext: TestContext
-) => Promise<any>;
+) => Promise<C>;
 
-export type MetricsFunc = (
-  callFunc: CallFunc,
-  params: ParamsType,
+export type MetricsFunc<P, C, M> = (
+  callFunc: CallFunc<P, C>,
+  params: P,
   callContext: CallContext,
   testContext: TestContext
-) => Promise<MetricsType>;
+) => Promise<M>;
 
-export type ReportOutput = { [name: string]: any };
+export type ReportOutput = { [key: string]: any };
 
-export interface Report {
+export interface Report<P, M> {
   getName(): string;
   startReport(startTime: Date): void;
   endReport(endTime: Date): void;
   newMetric(
-    params: ParamsType,
-    metrics: MetricsType,
+    params: P,
+    metrics: M,
     callContext: CallContext,
     testContext: TestContext
   ): void;

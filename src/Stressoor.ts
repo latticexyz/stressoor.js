@@ -27,11 +27,11 @@ export class Stressoor {
     stressFunc: Types.StressFunc,
     config: Types.StressTestConfig
   ): Promise<void> {
-    const promises: Promise<unknown>[] = [];
+    const promises: Promise<void>[] = [];
     for (let callIdx = 0; callIdx < config.nCalls; callIdx++) {
       const walletIdx = callIdx % this.wallets.length;
       if (walletIdx == 0 && callIdx != 0) await sleep(config.roundDelayMs);
-      const pp: Promise<unknown> = stressFunc({
+      const pp: Promise<void> = stressFunc({
         wallet: this.wallets[walletIdx],
         callIdx,
         walletIdx,

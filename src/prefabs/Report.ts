@@ -1,7 +1,7 @@
 import * as Types from "../types";
 import { Statistics } from "./statistics";
 
-class BaseReport implements Types.Report {
+class BaseReport<P, M> implements Types.Report<P, M> {
   private name: string;
 
   constructor(name: string) {
@@ -15,8 +15,8 @@ class BaseReport implements Types.Report {
   startReport(startTime: Date) {}
   endReport(endTime: Date) {}
   newMetric(
-    params: Types.ParamsType,
-    metrics: Types.MetricsType,
+    params: P,
+    metrics: M,
     callContext: Types.CallContext,
     testContext: Types.TestContext
   ) {}
@@ -25,7 +25,7 @@ class BaseReport implements Types.Report {
   }
 }
 
-class ReportSelected extends BaseReport {
+class _ReportSelected<P, M> extends BaseReport<P, M> {
   public selector: string;
 
   constructor(name: string, selector: string = "") {
@@ -33,17 +33,17 @@ class ReportSelected extends BaseReport {
     this.selector = selector;
   }
 
-  select<T>(data: Types.MetricsType): T {
-    return this.selector == "" ? data : data[this.selector];
+  select<T>(data: M): T {
+    return this.selector == "" ? data : (data as any)[this.selector];
   }
 }
 
-export class ReportDataArray<T> extends ReportSelected {
+export class ReportDataArray<T, P, M> extends _ReportSelected<P, M> {
   public data: T[] = [];
 
   newMetric(
-    params: Types.ParamsType,
-    metrics: Types.MetricsType,
+    params: P,
+    metrics: M,
     callContext: Types.CallContext,
     testContext: Types.TestContext
   ) {
@@ -57,7 +57,7 @@ export class ReportDataArray<T> extends ReportSelected {
   }
 }
 
-export class ReportTime extends BaseReport {
+export class ReportTime<P, M> extends BaseReport<P, M> {
   public startTime = NaN;
   public endTime = NaN;
 
@@ -80,7 +80,7 @@ export class ReportTime extends BaseReport {
   }
 }
 
-export class ReportTimeTemplatedString extends ReportTime {
+export class ReportTimeTemplatedString<P, M> extends ReportTime<P, M> {
   public urlTemplate: string;
 
   constructor(name: string, urlTemplate: string) {
@@ -97,15 +97,15 @@ export class ReportTimeTemplatedString extends ReportTime {
   }
 }
 
-export class ReportMaxMinMean extends ReportSelected {
+export class ReportMaxMinMean<P, M> extends _ReportSelected<P, M> {
   public max = NaN;
   public min = NaN;
   public mean = NaN;
   public n = 0;
 
   newMetric(
-    params: Types.ParamsType,
-    metrics: Types.MetricsType,
+    params: P,
+    metrics: M,
     callContext: Types.CallContext,
     testContext: Types.TestContext
   ) {
@@ -132,7 +132,7 @@ export class ReportMaxMinMean extends ReportSelected {
   }
 }
 
-export class ReportStats extends ReportDataArray<number> {
+export class ReportStats<P, M> extends ReportDataArray<number, P, M> {
   public percentileLabels = [1, 5, 10, 25, 50, 75, 90, 95, 99];
 
   getPercentiles(): { [name: number]: number } {

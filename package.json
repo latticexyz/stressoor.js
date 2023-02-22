@@ -15,7 +15,12 @@
   "dependencies": {
     "@ethersproject/properties": "^5.6.0",
     "@ethersproject/providers": "^5.6.8",
-    "@ethersproject/wallet": "^5.6.2"
+    "@ethersproject/wallet": "^5.6.2",
+    "@types/chai": "^4.3.4",
+    "@types/mocha": "^10.0.1",
+    "chai": "^4.3.7",
+    "mocha": "^10.2.0",
+    "ts-node": "^10.9.1"
   },
   "publishConfig": {
     "access": "public",

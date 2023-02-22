@@ -1,6 +1,16 @@
+import * as RPC from "../Rpc";
 import * as Types from "../types";
 
-export const noMetric: Types.MetricsFunc = async (
+export const rawMetric: Types.MetricsFunc<unknown, unknown, unknown> = async (
+  callFunc,
+  params,
+  callContext,
+  testContext
+) => {
+  return await callFunc(params, callContext, testContext);
+};
+
+export const noMetric: Types.MetricsFunc<unknown, unknown, {}> = async (
   callFunc,
   params,
   callContext,
@@ -10,7 +20,7 @@ export const noMetric: Types.MetricsFunc = async (
   return {};
 };
 
-export const noMetricNoWait: Types.MetricsFunc = async (
+export const noMetricNoWait: Types.MetricsFunc<unknown, unknown, {}> = async (
   callFunc,
   params,
   callContext,
@@ -20,12 +30,11 @@ export const noMetricNoWait: Types.MetricsFunc = async (
   return {};
 };
 
-export const timeIt: Types.MetricsFunc = async (
-  callFunc,
-  params,
-  callContext,
-  testContext
-) => {
+export const timeIt: Types.MetricsFunc<
+  unknown,
+  unknown,
+  { milliseconds: number }
+> = async (callFunc, params, callContext, testContext) => {
   const startTime: Date = new Date();
   await callFunc(params, callContext, testContext);
   const endTime: Date = new Date();
@@ -34,12 +43,11 @@ export const timeIt: Types.MetricsFunc = async (
   };
 };
 
-export const txInfo: Types.MetricsFunc = async (
-  callFunc,
-  params,
-  callContext,
-  testContext
-) => {
+export const txInfo: Types.MetricsFunc<
+  unknown,
+  RPC.TransactionReceipt,
+  { [key: string]: number | string | boolean | undefined }
+> = async (callFunc, params, callContext, testContext) => {
   const sentBlockNumber: number =
     await callContext.wallet.provider.getBlockNumber();
   const sentTime: number = new Date().getTime();

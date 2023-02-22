@@ -130,7 +130,7 @@ class BaseReport {
         return {};
     }
 }
-class ReportSelected extends BaseReport {
+class _ReportSelected extends BaseReport {
     constructor(name, selector = "") {
         super(name);
         this.selector = selector;
@@ -139,7 +139,7 @@ class ReportSelected extends BaseReport {
         return this.selector == "" ? data : data[this.selector];
     }
 }
-class ReportDataArray extends ReportSelected {
+class ReportDataArray extends _ReportSelected {
     constructor() {
         super(...arguments);
         this.data = [];
@@ -186,7 +186,7 @@ class ReportTimeTemplatedString extends ReportTime {
         };
     }
 }
-class ReportMaxMinMean extends ReportSelected {
+class ReportMaxMinMean extends _ReportSelected {
     constructor() {
         super(...arguments);
         this.max = NaN;

@@ -20,20 +20,18 @@ export declare type TestContext = {
     log: boolean;
 };
 export declare type StressTestOutput = {
-    [name: string]: ReportOutput;
+    [key: string]: ReportOutput;
 };
-export declare type ParamsType = any;
-export declare type MetricsType = any;
-export declare type ParamsFunc = (callContext: CallContext, testContext: TestContext) => Promise<ParamsType>;
-export declare type CallFunc = (params: ParamsType, callContext: CallContext, testContext: TestContext) => Promise<any>;
-export declare type MetricsFunc = (callFunc: CallFunc, params: ParamsType, callContext: CallContext, testContext: TestContext) => Promise<MetricsType>;
+export declare type ParamsFunc<P> = (callContext: CallContext, testContext: TestContext) => Promise<P>;
+export declare type CallFunc<P, C> = (params: P, callContext: CallContext, testContext: TestContext) => Promise<C>;
+export declare type MetricsFunc<P, C, M> = (callFunc: CallFunc<P, C>, params: P, callContext: CallContext, testContext: TestContext) => Promise<M>;
 export declare type ReportOutput = {
-    [name: string]: any;
+    [key: string]: any;
 };
-export interface Report {
+export interface Report<P, M> {
     getName(): string;
     startReport(startTime: Date): void;
     endReport(endTime: Date): void;
-    newMetric(params: ParamsType, metrics: MetricsType, callContext: CallContext, testContext: TestContext): void;
+    newMetric(params: P, metrics: M, callContext: CallContext, testContext: TestContext): void;
     output(): ReportOutput;
 }

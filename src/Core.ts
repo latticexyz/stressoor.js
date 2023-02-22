@@ -20,14 +20,14 @@ const defaultTestContext: Types.TestContext = {
   log: false,
 };
 
-const defaultReports: Types.Report[] = [new ReportTime()];
+const defaultReports = [new ReportTime()];
 const defaultInitFuncs: Types.StressFunc[] = [];
 
-export async function runStressTest(
-  paramsFunc: Types.ParamsFunc,
-  callFunc: Types.CallFunc,
-  metricsFunc: Types.MetricsFunc,
-  reports: Types.Report[] = defaultReports,
+export async function runStressTest<P, C, M>(
+  paramsFunc: Types.ParamsFunc<P>,
+  callFunc: Types.CallFunc<P, C>,
+  metricsFunc: Types.MetricsFunc<P, C, M>,
+  reports: Types.Report<P, M>[] = defaultReports,
   initFuncs: Types.StressFunc[] = defaultInitFuncs,
   _stressoorConfig: Partial<Types.StressoorConfig> = defaultStressoorConfig,
   _stressTestConfig: Partial<Types.StressTestConfig> = defaultStressTestConfig,
