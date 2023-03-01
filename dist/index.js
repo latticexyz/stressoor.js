@@ -369,23 +369,26 @@ var Init = /*#__PURE__*/Object.freeze({
     initHotNonce: initHotNonce
 });
 
-const noMetric = async (callFunc, params, callContext, testContext) => {
+async function rawMetric(callFunc, params, callContext, testContext) {
+    return await callFunc(params, callContext, testContext);
+}
+async function noMetric(callFunc, params, callContext, testContext) {
     await callFunc(params, callContext, testContext);
     return {};
-};
-const noMetricNoWait = async (callFunc, params, callContext, testContext) => {
+}
+async function noMetricNoWait(callFunc, params, callContext, testContext) {
     callFunc(params, callContext, testContext);
     return {};
-};
-const timeIt = async (callFunc, params, callContext, testContext) => {
+}
+async function timeIt(callFunc, params, callContext, testContext) {
     const startTime = new Date();
     await callFunc(params, callContext, testContext);
     const endTime = new Date();
     return {
         milliseconds: endTime.getTime() - startTime.getTime(),
     };
-};
-const txInfo = async (callFunc, params, callContext, testContext) => {
+}
+async function txInfo(callFunc, params, callContext, testContext) {
     const sentBlockNumber = await callContext.wallet.provider.getBlockNumber();
     const sentTime = new Date().getTime();
     const hotNonce = callContext.wallet.getHotNonce();
@@ -406,10 +409,11 @@ const txInfo = async (callFunc, params, callContext, testContext) => {
         gasUsed: receipt.gasUsed.toNumber(),
         nEvents: receipt.logs.length,
     };
-};
+}
 
 var Metrics = /*#__PURE__*/Object.freeze({
     __proto__: null,
+    rawMetric: rawMetric,
     noMetric: noMetric,
     noMetricNoWait: noMetricNoWait,
     timeIt: timeIt,
