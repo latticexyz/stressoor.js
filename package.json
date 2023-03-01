@@ -30,6 +30,7 @@
   "scripts": {
     "commit": "cz",
     "build": "rollup -c",
-    "release": "release-it"
+    "release": "release-it",
+    "run:example": "node --loader ts-node/esm --experimental-specifier-resolution=node ./examples/example.ts"
   }
 }
