@@ -1,47 +1,49 @@
 import * as Types from "../types";
-declare class BaseReport implements Types.Report {
+declare class BaseReport<P, M> implements Types.Report<P, M> {
     private name;
     constructor(name: string);
     getName(): string;
     startReport(startTime: Date): void;
     endReport(endTime: Date): void;
-    newMetric(params: Types.ParamsType, metrics: Types.MetricsType, callContext: Types.CallContext, testContext: Types.TestContext): void;
-    output(): any;
+    newMetric(params: P, metrics: M, callContext: Types.CallContext, testContext: Types.TestContext): void;
+    output(): Types.ReportOutput;
 }
-declare class ReportSelected extends BaseReport {
+declare class _ReportSelected<P, M> extends BaseReport<P, M> {
     selector: string;
     constructor(name: string, selector?: string);
-    select(data: any): any;
+    select<T>(data: M): T;
 }
-export declare class ReportDataArray extends ReportSelected {
-    data: any[];
-    newMetric(params: Types.ParamsType, metrics: Types.MetricsType, callContext: Types.CallContext, testContext: Types.TestContext): void;
-    output(): any;
+export declare class ReportDataArray<T, P, M> extends _ReportSelected<P, M> {
+    data: T[];
+    newMetric(params: P, metrics: M, callContext: Types.CallContext, testContext: Types.TestContext): void;
+    output(): Types.ReportOutput;
 }
-export declare class ReportTime extends BaseReport {
+export declare class ReportTime<P, M> extends BaseReport<P, M> {
     startTime: number;
     endTime: number;
     constructor(name?: string);
     startReport(startDate: Date): void;
     endReport(endDate: Date): void;
-    output(): any;
+    output(): Types.ReportOutput;
 }
-export declare class ReportTimeTemplatedString extends ReportTime {
+export declare class ReportTimeTemplatedString<P, M> extends ReportTime<P, M> {
     urlTemplate: string;
     constructor(name: string, urlTemplate: string);
-    output(): any;
+    output(): Types.ReportOutput;
 }
-export declare class ReportMaxMinMean extends ReportSelected {
+export declare class ReportMaxMinMean<P, M> extends _ReportSelected<P, M> {
     max: number;
     min: number;
     mean: number;
     n: number;
-    newMetric(params: Types.ParamsType, metrics: Types.MetricsType, callContext: Types.CallContext, testContext: Types.TestContext): void;
-    output(): any;
+    newMetric(params: P, metrics: M, callContext: Types.CallContext, testContext: Types.TestContext): void;
+    output(): Types.ReportOutput;
 }
-export declare class ReportStats extends ReportDataArray {
+export declare class ReportStats<P, M> extends ReportDataArray<number, P, M> {
     percentileLabels: number[];
-    getPercentiles(): any;
-    output(): any;
+    getPercentiles(): {
+        [name: number]: number;
+    };
+    output(): Types.ReportOutput;
 }
 export {};

@@ -4,8 +4,8 @@ export function log(
   testContext: Types.TestContext,
   subject: string,
   ...message: string[]
-): void {
-  if (testContext.log === true || testContext[subject]) {
+) {
+  if (testContext.log === true) {
     console.log(`${new Date().toISOString()} -- [${subject}]`, ...message);
   }
 }

@@ -1,44 +1,50 @@
 import { Stressoor } from "./Stressoor";
 import { ReportTime } from "./prefabs/Report";
+import * as RPC from "./Rpc";
 import * as Types from "./types";
 
 const defaultStressoorConfig: Types.StressoorConfig = {
-  rpcProvider: undefined,
+  rpcProvider: new RPC.JsonRpcProvider(),
   nWallets: 1,
   walletGenSeed: "",
 };
 
-const defaultStressConfig: Types.StressConfig = {
-  nCalls: undefined,
+const defaultStressTestConfig: Types.StressTestConfig = {
+  nCalls: 0,
   async: true,
   callDelayMs: 10,
   roundDelayMs: 0,
 };
 
-const defaultReports: Types.Report[] = [new ReportTime()];
+const defaultTestContext: Types.TestContext = {
+  log: false,
+};
+
+const defaultReports = [new ReportTime()];
 const defaultInitFuncs: Types.StressFunc[] = [];
 
-export async function runStressTest(
-  paramsFunc: Types.ParamsFunc,
-  callFunc: Types.CallFunc,
-  metricsFunc: Types.MetricsFunc,
-  reports: Types.Report[] = defaultReports,
+export async function runStressTest<P, C, M>(
+  paramsFunc: Types.ParamsFunc<P>,
+  callFunc: Types.CallFunc<P, C>,
+  metricsFunc: Types.MetricsFunc<P, C, M>,
+  reports: Types.Report<P, M>[] = defaultReports,
   initFuncs: Types.StressFunc[] = defaultInitFuncs,
-  stressoorConfig: Types.StressoorConfig = defaultStressoorConfig,
-  stressConfig: Types.StressConfig = defaultStressConfig,
-  testContext: Types.TestContext = {}
-): Promise<any> {
-  stressoorConfig = { ...defaultStressoorConfig, ...stressoorConfig };
-  stressConfig = { ...defaultStressConfig, ...stressConfig };
+  _stressoorConfig: Partial<Types.StressoorConfig> = defaultStressoorConfig,
+  _stressTestConfig: Partial<Types.StressTestConfig> = defaultStressTestConfig,
+  testContext: Types.TestContext = defaultTestContext
+): Promise<Types.StressTestOutput> {
+  const stressoorConfig: Types.StressoorConfig = {
+    ...defaultStressoorConfig,
+    ..._stressoorConfig,
+  };
+  const stressTestConfig: Types.StressTestConfig = {
+    ...defaultStressTestConfig,
+    ..._stressTestConfig,
+  };
 
-  const stressoor: Stressoor = new Stressoor(
-    stressoorConfig.rpcProvider,
-    stressoorConfig.nWallets,
-    stressoorConfig.walletGenSeed
-  );
+  const stressoor = new Stressoor(stressoorConfig);
 
-  const stress: Types.StressFunc = async (wallet, callIdx, walletIdx) => {
-    const callContext = { wallet, callIdx, walletIdx };
+  const stress: Types.StressFunc = async (callContext: Types.CallContext) => {
     const params = await paramsFunc(callContext, testContext);
     const metrics = await metricsFunc(
       callFunc,
@@ -52,38 +58,30 @@ export async function runStressTest(
   };
 
   for (let ii = 0; ii < initFuncs.length; ii++) {
-    await stressoor.stress(
-      initFuncs[ii],
-      stressoorConfig.nWallets,
-      stressConfig.async,
-      stressConfig.callDelayMs,
-      stressConfig.roundDelayMs
-    );
+    const initConfig: Types.StressTestConfig = {
+      ...stressTestConfig,
+      nCalls: stressoor.wallets.length,
+    };
+    await stressoor.stress(initFuncs[ii], initConfig);
   }
 
-  const startTime: Date = new Date();
+  const startTime = new Date();
 
   for (let ii = 0; ii < reports.length; ii++) {
     reports[ii].startReport(startTime);
   }
 
-  await stressoor.stress(
-    stress,
-    stressConfig.nCalls,
-    stressConfig.async,
-    stressConfig.callDelayMs,
-    stressConfig.roundDelayMs
-  );
+  await stressoor.stress(stress, stressTestConfig);
 
-  const endTime: Date = new Date();
+  const endTime = new Date();
 
-  const output: { [name: string]: any } = {};
+  const output: Types.StressTestOutput = {};
 
   for (let ii = 0; ii < reports.length; ii++) {
     const report = reports[ii];
     report.endReport(endTime);
-    let name: string = report.getName();
-    let jj: number = 0;
+    let name = report.getName();
+    let jj = 0;
     while (name in output) {
       name = report.getName() + `(${jj})`;
       jj++;

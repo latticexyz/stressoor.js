@@ -8,49 +8,40 @@ async function sleep(ms: number): Promise<void> {
 export class Stressoor {
   public wallets: RPC.Wallet[] = [];
 
-  constructor(
-    rpcProvider: RPC.JsonRpcProvider,
-    nWallets: number = 100,
-    seed: string = ""
-  ) {
-    this.initWallets(rpcProvider, nWallets, seed);
+  constructor(config: Types.StressoorConfig) {
+    this.initWallets(config);
   }
 
-  initWallets(
-    rpcProvider: RPC.JsonRpcProvider,
-    nWallets: number,
-    seed: string
-  ): void {
+  initWallets(config: Types.StressoorConfig) {
     this.wallets = [];
-    for (let ii = 1; ii < nWallets + 1; ii++) {
+    for (let ii = 1; ii < config.nWallets + 1; ii++) {
       const pKey: string =
-        "0x" + seed + ii.toString().padStart(64 - seed.length, "0");
-      this.wallets.push(new RPC.Wallet(pKey, rpcProvider));
+        "0x" +
+        config.walletGenSeed +
+        ii.toString().padStart(64 - config.walletGenSeed.length, "0");
+      this.wallets.push(new RPC.Wallet(pKey, config.rpcProvider));
     }
   }
 
   async stress(
     stressFunc: Types.StressFunc,
-    nCalls: number,
-    async: boolean,
-    callDelayMs: number,
-    roundDelayMs: number
+    config: Types.StressTestConfig
   ): Promise<void> {
-    const promises: Promise<unknown>[] = [];
-    for (let callIdx = 0; callIdx < nCalls; callIdx++) {
+    const promises: Promise<void>[] = [];
+    for (let callIdx = 0; callIdx < config.nCalls; callIdx++) {
       const walletIdx = callIdx % this.wallets.length;
-      if (walletIdx == 0 && callIdx != 0) await sleep(roundDelayMs);
-      const pp: Promise<unknown> = stressFunc(
-        this.wallets[walletIdx],
+      if (walletIdx == 0 && callIdx != 0) await sleep(config.roundDelayMs);
+      const pp: Promise<void> = stressFunc({
+        wallet: this.wallets[walletIdx],
         callIdx,
-        walletIdx
-      );
-      if (async) {
+        walletIdx,
+      });
+      if (config.async) {
         promises.push(pp);
       } else {
         await pp;
       }
-      await sleep(callDelayMs);
+      await sleep(config.callDelayMs);
     }
     await Promise.all(promises);
   }

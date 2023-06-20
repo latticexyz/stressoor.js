@@ -1,6 +1,6 @@
 {
   "name": "@latticexyz/stressoor",
-  "version": "0.6.1",
+  "version": "0.6.3",
   "repository": "https://github.com/latticexyz/stressoor.js",
   "license": "MIT",
   "main": "dist/index.js",
@@ -10,6 +10,7 @@
     "commitizen": "^4.2.4",
     "release-it": "^15.1.0",
     "rollup": "^2.75.7",
+    "ts-node": "^10.9.1",
     "typescript": "^4.7.4"
   },
   "dependencies": {
@@ -29,6 +30,7 @@
   "scripts": {
     "commit": "cz",
     "build": "rollup -c",
-    "release": "release-it"
+    "release": "release-it",
+    "run:example": "node --loader ts-node/esm --experimental-specifier-resolution=node ./examples/example.ts"
   }
 }

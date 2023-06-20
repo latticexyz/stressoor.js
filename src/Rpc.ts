@@ -4,12 +4,14 @@ import {
   WebSocketProvider,
   TransactionRequest,
   TransactionResponse,
+  TransactionReceipt,
 } from "@ethersproject/providers";
 import { Deferrable } from "@ethersproject/properties";
 export { JsonRpcProvider, WebSocketProvider };
+export type { TransactionRequest, TransactionResponse, TransactionReceipt };
 
 class HookedWallet extends EthersWallet {
-  hook_sendTransaction(): void {}
+  hook_sendTransaction() {}
 
   async sendTransaction(
     transaction: Deferrable<TransactionRequest>
@@ -26,11 +28,11 @@ class HotNonceWallet extends HookedWallet {
     return this.hotNonce;
   }
 
-  incHotNonce(): void {
+  incHotNonce() {
     this.hotNonce++;
   }
 
-  hook_sendTransaction(): void {
+  hook_sendTransaction() {
     this.incHotNonce();
   }
 

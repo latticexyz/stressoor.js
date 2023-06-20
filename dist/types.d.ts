@@ -1,18 +1,37 @@
 import * as RPC from "./Rpc";
-export declare type TestContext = any;
-export declare type CallContext = any;
-export declare type ParamsType = any;
-export declare type MetricsType = any;
-export declare type StressConfig = any;
-export declare type StressoorConfig = any;
-export declare type ParamsFunc = (callContext: CallContext, testContext: TestContext) => Promise<ParamsType>;
-export declare type CallFunc = (params: ParamsType, callContext: CallContext, testContext: TestContext) => Promise<any>;
-export declare type MetricsFunc = (callFunc: CallFunc, params: ParamsType, callContext: CallContext, testContext: TestContext) => Promise<MetricsType>;
-export interface Report {
+export declare type CallContext = {
+    wallet: RPC.Wallet;
+    callIdx: number;
+    walletIdx: number;
+};
+export declare type StressTestConfig = {
+    nCalls: number;
+    async: boolean;
+    callDelayMs: number;
+    roundDelayMs: number;
+};
+export declare type StressoorConfig = {
+    rpcProvider: RPC.JsonRpcProvider;
+    nWallets: number;
+    walletGenSeed: string;
+};
+export declare type StressFunc = (callContext: CallContext) => Promise<void>;
+export declare type TestContext = {
+    log: boolean;
+};
+export declare type StressTestOutput = {
+    [key: string]: ReportOutput;
+};
+export declare type ParamsFunc<P> = (callContext: CallContext, testContext: TestContext) => Promise<P>;
+export declare type CallFunc<P, C> = (params: P, callContext: CallContext, testContext: TestContext) => Promise<C>;
+export declare type MetricsFunc<P, C, M> = (callFunc: CallFunc<P, C>, params: P, callContext: CallContext, testContext: TestContext) => Promise<M>;
+export declare type ReportOutput = {
+    [key: string]: any;
+};
+export interface Report<P, M> {
     getName(): string;
     startReport(startTime: Date): void;
     endReport(endTime: Date): void;
-    newMetric(params: ParamsType, metrics: MetricsType, callContext: CallContext, testContext: TestContext): void;
-    output(): any;
+    newMetric(params: P, metrics: M, callContext: CallContext, testContext: TestContext): void;
+    output(): ReportOutput;
 }
-export declare type StressFunc = (wallet: RPC.Wallet, callIdx: number, walletIdx: number) => Promise<void>;

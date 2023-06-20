@@ -1,4 +1,5 @@
 import { Wallet } from '@ethersproject/wallet';
+import { JsonRpcProvider } from '@ethersproject/providers';
 export { JsonRpcProvider, WebSocketProvider } from '@ethersproject/providers';
 
 class HookedWallet extends Wallet {
@@ -31,31 +32,37 @@ async function sleep(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
 class Stressoor {
-    constructor(rpcProvider, nWallets = 100, seed = "") {
+    constructor(config) {
         this.wallets = [];
-        this.initWallets(rpcProvider, nWallets, seed);
+        this.initWallets(config);
     }
-    initWallets(rpcProvider, nWallets, seed) {
+    initWallets(config) {
         this.wallets = [];
-        for (let ii = 1; ii < nWallets + 1; ii++) {
-            const pKey = "0x" + seed + ii.toString().padStart(64 - seed.length, "0");
-            this.wallets.push(new HotNonceWallet(pKey, rpcProvider));
+        for (let ii = 1; ii < config.nWallets + 1; ii++) {
+            const pKey = "0x" +
+                config.walletGenSeed +
+                ii.toString().padStart(64 - config.walletGenSeed.length, "0");
+            this.wallets.push(new HotNonceWallet(pKey, config.rpcProvider));
         }
     }
-    async stress(stressFunc, nCalls, async, callDelayMs, roundDelayMs) {
+    async stress(stressFunc, config) {
         const promises = [];
-        for (let callIdx = 0; callIdx < nCalls; callIdx++) {
+        for (let callIdx = 0; callIdx < config.nCalls; callIdx++) {
             const walletIdx = callIdx % this.wallets.length;
             if (walletIdx == 0 && callIdx != 0)
-                await sleep(roundDelayMs);
-            const pp = stressFunc(this.wallets[walletIdx], callIdx, walletIdx);
-            if (async) {
+                await sleep(config.roundDelayMs);
+            const pp = stressFunc({
+                wallet: this.wallets[walletIdx],
+                callIdx,
+                walletIdx,
+            });
+            if (config.async) {
                 promises.push(pp);
             }
             else {
                 await pp;
             }
-            await sleep(callDelayMs);
+            await sleep(config.callDelayMs);
         }
         await Promise.all(promises);
     }
@@ -119,10 +126,11 @@ class BaseReport {
     startReport(startTime) { }
     endReport(endTime) { }
     newMetric(params, metrics, callContext, testContext) { }
-    output() { }
+    output() {
+        return {};
+    }
 }
-// [?] Can you extend multiple classes?
-class ReportSelected extends BaseReport {
+class _ReportSelected extends BaseReport {
     constructor(name, selector = "") {
         super(name);
         this.selector = selector;
@@ -131,7 +139,7 @@ class ReportSelected extends BaseReport {
         return this.selector == "" ? data : data[this.selector];
     }
 }
-class ReportDataArray extends ReportSelected {
+class ReportDataArray extends _ReportSelected {
     constructor() {
         super(...arguments);
         this.data = [];
@@ -178,7 +186,7 @@ class ReportTimeTemplatedString extends ReportTime {
         };
     }
 }
-class ReportMaxMinMean extends ReportSelected {
+class ReportMaxMinMean extends _ReportSelected {
     constructor() {
         super(...arguments);
         this.max = NaN;
@@ -224,8 +232,22 @@ class ReportStats extends ReportDataArray {
         return percentiles;
     }
     output() {
+        if (this.data.length === 0) {
+            return {
+                n: 0,
+                min: null,
+                max: null,
+                range: null,
+                mean: null,
+                median: null,
+                variance: null,
+                stddev: null,
+                percentiles: null,
+            };
+        }
         return {
             stats: {
+                n: this.data.length,
                 min: Statistics.min(this.data),
                 max: Statistics.max(this.data),
                 range: Statistics.range(this.data),
@@ -249,24 +271,32 @@ var Report = /*#__PURE__*/Object.freeze({
 });
 
 const defaultStressoorConfig = {
-    rpcProvider: undefined,
+    rpcProvider: new JsonRpcProvider(),
     nWallets: 1,
     walletGenSeed: "",
 };
-const defaultStressConfig = {
-    nCalls: undefined,
+const defaultStressTestConfig = {
+    nCalls: 0,
     async: true,
     callDelayMs: 10,
     roundDelayMs: 0,
 };
+const defaultTestContext = {
+    log: false,
+};
 const defaultReports = [new ReportTime()];
 const defaultInitFuncs = [];
-async function runStressTest(paramsFunc, callFunc, metricsFunc, reports = defaultReports, initFuncs = defaultInitFuncs, stressoorConfig = defaultStressoorConfig, stressConfig = defaultStressConfig, testContext = {}) {
-    stressoorConfig = { ...defaultStressoorConfig, ...stressoorConfig };
-    stressConfig = { ...defaultStressConfig, ...stressConfig };
-    const stressoor = new Stressoor(stressoorConfig.rpcProvider, stressoorConfig.nWallets, stressoorConfig.walletGenSeed);
-    const stress = async (wallet, callIdx, walletIdx) => {
-        const callContext = { wallet, callIdx, walletIdx };
+async function runStressTest(paramsFunc, callFunc, metricsFunc, reports = defaultReports, initFuncs = defaultInitFuncs, _stressoorConfig = defaultStressoorConfig, _stressTestConfig = defaultStressTestConfig, testContext = defaultTestContext) {
+    const stressoorConfig = {
+        ...defaultStressoorConfig,
+        ..._stressoorConfig,
+    };
+    const stressTestConfig = {
+        ...defaultStressTestConfig,
+        ..._stressTestConfig,
+    };
+    const stressoor = new Stressoor(stressoorConfig);
+    const stress = async (callContext) => {
         const params = await paramsFunc(callContext, testContext);
         const metrics = await metricsFunc(callFunc, params, callContext, testContext);
         for (let ii = 0; ii < reports.length; ii++) {
@@ -274,13 +304,17 @@ async function runStressTest(paramsFunc, callFunc, metricsFunc, reports = defaul
         }
     };
     for (let ii = 0; ii < initFuncs.length; ii++) {
-        await stressoor.stress(initFuncs[ii], stressoorConfig.nWallets, stressConfig.async, stressConfig.callDelayMs, stressConfig.roundDelayMs);
+        const initConfig = {
+            ...stressTestConfig,
+            nCalls: stressoor.wallets.length,
+        };
+        await stressoor.stress(initFuncs[ii], initConfig);
     }
     const startTime = new Date();
     for (let ii = 0; ii < reports.length; ii++) {
         reports[ii].startReport(startTime);
     }
-    await stressoor.stress(stress, stressConfig.nCalls, stressConfig.async, stressConfig.callDelayMs, stressConfig.roundDelayMs);
+    await stressoor.stress(stress, stressTestConfig);
     const endTime = new Date();
     const output = {};
     for (let ii = 0; ii < reports.length; ii++) {
@@ -298,7 +332,7 @@ async function runStressTest(paramsFunc, callFunc, metricsFunc, reports = defaul
 }
 
 function log(testContext, subject, ...message) {
-    if (testContext.log === true || testContext[subject]) {
+    if (testContext.log === true) {
         console.log(`${new Date().toISOString()} -- [${subject}]`, ...message);
     }
 }
@@ -326,8 +360,8 @@ var Call = /*#__PURE__*/Object.freeze({
     sendTransactionGetReceipt: sendTransactionGetReceipt
 });
 
-const initHotNonce = async (wallet, callIdx, walletIdx) => {
-    await wallet.initHotNonce();
+const initHotNonce = async (callContext) => {
+    await callContext.wallet.initHotNonce();
 };
 
 var Init = /*#__PURE__*/Object.freeze({
@@ -335,23 +369,26 @@ var Init = /*#__PURE__*/Object.freeze({
     initHotNonce: initHotNonce
 });
 
-const noMetric = async (callFunc, params, callContext, testContext) => {
+async function rawMetric(callFunc, params, callContext, testContext) {
+    return await callFunc(params, callContext, testContext);
+}
+async function noMetric(callFunc, params, callContext, testContext) {
     await callFunc(params, callContext, testContext);
     return {};
-};
-const noMetricNoWait = async (callFunc, params, callContext, testContext) => {
+}
+async function noMetricNoWait(callFunc, params, callContext, testContext) {
     callFunc(params, callContext, testContext);
     return {};
-};
-const timeIt = async (callFunc, params, callContext, testContext) => {
+}
+async function timeIt(callFunc, params, callContext, testContext) {
     const startTime = new Date();
     await callFunc(params, callContext, testContext);
     const endTime = new Date();
     return {
         milliseconds: endTime.getTime() - startTime.getTime(),
     };
-};
-const txInfo = async (callFunc, params, callContext, testContext) => {
+}
+async function txInfo(callFunc, params, callContext, testContext) {
     const sentBlockNumber = await callContext.wallet.provider.getBlockNumber();
     const sentTime = new Date().getTime();
     const hotNonce = callContext.wallet.getHotNonce();
@@ -372,10 +409,11 @@ const txInfo = async (callFunc, params, callContext, testContext) => {
         gasUsed: receipt.gasUsed.toNumber(),
         nEvents: receipt.logs.length,
     };
-};
+}
 
 var Metrics = /*#__PURE__*/Object.freeze({
     __proto__: null,
+    rawMetric: rawMetric,
     noMetric: noMetric,
     noMetricNoWait: noMetricNoWait,
     timeIt: timeIt,
@@ -390,5 +428,5 @@ var index = /*#__PURE__*/Object.freeze({
     Report: Report
 });
 
-export { index as Prefabs, HotNonceWallet as Wallet, log, runStressTest };
+export { index as Prefabs, Stressoor, HotNonceWallet as Wallet, log, runStressTest };
 //# sourceMappingURL=index.js.map
